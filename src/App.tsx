@@ -16,13 +16,22 @@ export default function App() {
   const [page, setPage] = useState<Page>('home');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [pendingPage, setPendingPage] = useState<Page | null>(null);
 
   useEffect(() => {
     const session = getSession();
     if (session) setUser(session.user);
   }, []);
 
+  const loggedIn = !!user;
+
   const navigate = (p: Page, id?: string) => {
+    if (p === 'create' && !loggedIn) {
+      setPendingPage('create');
+      setPage('login');
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      return;
+    }
     setPage(p);
     if (id !== undefined) setSelectedId(id);
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -31,7 +40,12 @@ export default function App() {
   const handleLogin = () => {
     const session = getSession();
     if (session) setUser(session.user);
-    navigate('home');
+    if (pendingPage) {
+      setPage(pendingPage);
+      setPendingPage(null);
+    } else {
+      navigate('home');
+    }
   };
 
   const handleLogout = () => {
@@ -40,7 +54,6 @@ export default function App() {
     navigate('home');
   };
 
-  const loggedIn = !!user;
   const hideNav = page === 'login' || page === 'register';
 
   return (
