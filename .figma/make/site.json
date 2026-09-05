@@ -1,0 +1,10 @@
+{
+  "description": "Enhances user productivity by streamlining tasks with an intuitive interface designed for efficient workflow management and easy collaboration.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
