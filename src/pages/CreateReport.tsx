@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { NavigateFn } from '../data/mock';
 
 const steps = [
@@ -46,6 +46,8 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const handleUseMyLocation = () => {
     if (!navigator.geolocation) {
       setLocationError('Tu navegador no admite geolocalización.');
@@ -68,6 +70,21 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
+  };
+
+  const handleFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const remaining = 10 - images.length;
+    const selected = Array.from(files).slice(0, remaining);
+    selected.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImages((prev) => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
   };
 
   const progress = ((step - 1) / (steps.length - 1)) * 100;
@@ -189,14 +206,14 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
                 ))}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-dark mb-1.5 block">Nombre (si lo sabés)</label>
-                  <input value={animalName} onChange={(e) => setAnimalName(e.target.value)} placeholder="Ej: Luna" className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors" />
+                  <input value={animalName} onChange={(e) => setAnimalName(e.target.value)} placeholder="Ej: Luna" className="w-full h-11 px-3.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-dark mb-1.5 block">Fecha del avistamiento</label>
-                  <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors" />
+                  <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full h-11 px-3.5 border border-border rounded-xl text-sm text-dark focus:outline-none focus:border-terra transition-colors" />
                 </div>
               </div>
             </div>
@@ -269,6 +286,17 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
             <div>
               <h2 className="font-display text-2xl font-semibold text-dark mb-6">Subí fotos del animal</h2>
               <p className="text-warm-mid text-sm mb-6">Las fotos ayudan mucho a que la comunidad pueda identificar al animal. Cuantas más, mejor.</p>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                capture="environment"
+                onChange={handleFilesSelected}
+                className="hidden"
+              />
+
               <div className="grid grid-cols-3 gap-3 mb-4">
                 {images.map((img, i) => (
                   <div key={i} className="aspect-square rounded-xl overflow-hidden bg-warm relative group">
@@ -279,17 +307,20 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
                     >✕</button>
                   </div>
                 ))}
-                <button
-                  onClick={() => setImages([...images, `https://images.unsplash.com/photo-1477884213360-7e9d7dcc1e48?w=300&h=300&fit=crop&auto=format&${Date.now()}`])}
-                  className="aspect-square rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 hover:border-terra hover:bg-terra/5 transition-colors text-warm-mid hover:text-terra"
-                >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                  <span className="text-xs font-medium">Agregar foto</span>
-                </button>
+                {images.length < 10 && (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="aspect-square rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 hover:border-terra hover:bg-terra/5 transition-colors text-warm-mid hover:text-terra"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    <span className="text-xs font-medium">Agregar foto</span>
+                  </button>
+                )}
               </div>
-              <p className="text-xs text-warm-mid">Formatos: JPG, PNG. Máximo 10 fotos.</p>
+              <p className="text-xs text-warm-mid">Formatos: JPG, PNG. Máximo 10 fotos. Podés tomar una foto nueva o elegir desde tu galería o archivos.</p>
             </div>
           )}
 
