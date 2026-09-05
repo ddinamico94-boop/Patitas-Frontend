@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { NavigateFn } from '../data/mock';
-import { PawIcon } from '../components/Navbar';
 import { loginWithGoogle, saveSession } from '../lib/api';
 
 export default function Login({ navigate, onLogin }: { navigate: NavigateFn; onLogin: () => void }) {
@@ -41,8 +40,10 @@ export default function Login({ navigate, onLogin }: { navigate: NavigateFn; onL
         <div className="absolute inset-0 bg-gradient-to-tr from-dark/80 via-dark/40 to-transparent" />
         <div className="relative z-10 flex flex-col justify-between p-12 text-white h-full">
           <button onClick={() => navigate('home')} className="flex items-center gap-2.5">
-            <PawIcon size={28} />
-            <span className="font-display font-semibold text-xl">Patitas Tucumán</span>
+            <span className="text-xl">
+              <span style={{ fontFamily: 'var(--font-script)' }}>Patitas</span>
+              <span className="font-display font-semibold"> Tucumán</span>
+            </span>
           </button>
           <div>
             <p className="font-display text-4xl font-semibold leading-tight mb-4">
@@ -57,8 +58,10 @@ export default function Login({ navigate, onLogin }: { navigate: NavigateFn; onL
       <div className="flex-1 flex items-center justify-center p-6 sm:p-10">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2.5 text-terra mb-8">
-            <PawIcon size={24} />
-            <span className="font-display font-semibold text-xl text-dark">Patitas <span className="text-terra">Tucumán</span></span>
+            <span className="text-xl text-dark">
+              <span style={{ fontFamily: 'var(--font-script)' }}>Patitas</span>
+              <span className="font-display font-semibold text-terra"> Tucumán</span>
+            </span>
           </div>
           <h1 className="font-display text-3xl font-semibold text-dark mb-2">Bienvenido de nuevo</h1>
           <p className="text-warm-mid mb-8">Ingresá a tu cuenta para reportar y gestionar animales.</p>
