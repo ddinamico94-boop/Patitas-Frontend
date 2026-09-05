@@ -1,3 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <text x="30" y="46" text-anchor="middle" font-family="Pacifico, cursive" font-size="48" fill="#1C1917">P</text>
+  <path d="M32 30 C 22 30, 16 40, 20 50 C 23 57, 28 55, 32 55 C 36 55, 41 57, 44 50 C 48 40, 42 30, 32 30 Z" fill="#C4503A"/>
+  <ellipse cx="15" cy="26" rx="7" ry="9" transform="rotate(-20 15 26)" fill="#C4503A"/>
+  <ellipse cx="49" cy="26" rx="7" ry="9" transform="rotate(20 49 26)" fill="#C4503A"/>
+  <ellipse cx="24" cy="12" rx="7.5" ry="10" transform="rotate(-10 24 12)" fill="#C4503A"/>
+  <ellipse cx="40" cy="12" rx="7.5" ry="10" transform="rotate(10 40 12)" fill="#C4503A"/>
 </svg>
