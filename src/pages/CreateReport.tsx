@@ -42,11 +42,39 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
 
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError('Tu navegador no admite geolocalización.');
+      return;
+    }
+    setLocating(true);
+    setLocationError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setLocating(false);
+      },
+      (err) => {
+        setLocationError(
+          err.code === err.PERMISSION_DENIED
+            ? 'Denegaste el permiso de ubicación. Podés habilitarlo en la configuración del navegador.'
+            : 'No se pudo obtener tu ubicación. Probá de nuevo.'
+        );
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   const progress = ((step - 1) / (steps.length - 1)) * 100;
 
   const canNext = () => {
     if (step === 1) return reportType !== '' && animalKind !== '';
-    if (step === 2) return address !== '' || zone !== '';
+    if (step === 2) return address !== '' || zone !== '' || coords !== null;
     return true;
   };
 
@@ -190,12 +218,47 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
                     {['Centro', 'Yerba Buena', 'Las Talitas', 'Villa 9 de Julio', 'Lomas de Tafí', 'El Manantial', 'Alberdi', 'Ranchillos', 'Muñecas', 'San Cayetano'].map((z) => <option key={z}>{z}</option>)}
                   </select>
                 </div>
-                <div className="h-48 rounded-2xl border-2 border-dashed border-border flex items-center justify-center text-center p-6" style={{ background: 'linear-gradient(135deg, #EFE9DC 0%, #E4DDD1 100%)' }}>
-                  <div>
-                    <div className="text-3xl mb-2">📍</div>
-                    <p className="text-sm font-medium text-dark mb-1">Seleccionar en el mapa</p>
-                    <p className="text-xs text-warm-mid">Hacé clic para indicar la ubicación exacta</p>
-                  </div>
+
+                <div>
+                  <button
+                    type="button"
+                    onClick={handleUseMyLocation}
+                    disabled={locating}
+                    className="w-full py-2.5 border-2 border-terra text-terra font-semibold rounded-xl text-sm hover:bg-terra/5 transition-colors disabled:opacity-50 mb-3 flex items-center justify-center gap-2"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <circle cx="12" cy="12" r="3" />
+                      <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+                    </svg>
+                    {locating ? 'Buscando tu ubicación...' : 'Usar mi ubicación actual'}
+                  </button>
+
+                  {locationError && (
+                    <p className="text-sm text-red-600 mb-3">{locationError}</p>
+                  )}
+
+                  {coords ? (
+                    <div className="rounded-2xl overflow-hidden border border-border">
+                      <iframe
+                        title="Mapa de ubicación"
+                        width="100%"
+                        height="220"
+                        style={{ border: 0 }}
+                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${coords.lng - 0.005}%2C${coords.lat - 0.005}%2C${coords.lng + 0.005}%2C${coords.lat + 0.005}&layer=mapnik&marker=${coords.lat}%2C${coords.lng}`}
+                      />
+                      <p className="text-xs text-warm-mid px-3 py-2 bg-warm">
+                        Ubicación detectada: {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="h-48 rounded-2xl border-2 border-dashed border-border flex items-center justify-center text-center p-6" style={{ background: 'linear-gradient(135deg, #EFE9DC 0%, #E4DDD1 100%)' }}>
+                      <div>
+                        <div className="text-3xl mb-2">📍</div>
+                        <p className="text-sm font-medium text-dark mb-1">Sin ubicación seleccionada</p>
+                        <p className="text-xs text-warm-mid">Tocá "Usar mi ubicación actual" para marcarla en el mapa</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
