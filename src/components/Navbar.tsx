@@ -39,7 +39,10 @@ export default function Navbar({ page, navigate, loggedIn }: NavbarProps) {
             className="flex items-center gap-2.5 text-terra"
           >
             <PawIcon size={28} />
-            <span className="font-display font-semibold text-xl text-dark">Patitas<span className="text-terra"> Tucumán</span></span>
+            <span className="text-xl text-dark">
+              <span style={{ fontFamily: 'var(--font-script)' }}>Patitas</span>
+              <span className="font-display font-semibold text-terra"> Tucumán</span>
+            </span>
           </button>
 
           <div className="hidden md:flex items-center gap-0.5">
