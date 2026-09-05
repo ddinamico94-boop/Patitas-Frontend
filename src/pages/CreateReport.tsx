@@ -209,11 +209,11 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-dark mb-1.5 block">Nombre (si lo sabés)</label>
-                  <input value={animalName} onChange={(e) => setAnimalName(e.target.value)} placeholder="Ej: Luna" className="w-full h-11 px-3.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors" />
+                  <input value={animalName} onChange={(e) => setAnimalName(e.target.value)} placeholder="Ej: Luna" className="w-full h-12 px-4 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-dark mb-1.5 block">Fecha del avistamiento</label>
-                  <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full h-11 px-3.5 border border-border rounded-xl text-sm text-dark focus:outline-none focus:border-terra transition-colors" />
+                  <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full h-12 px-4 border border-border rounded-xl text-sm text-dark focus:outline-none focus:border-terra transition-colors box-border" />
                 </div>
               </div>
             </div>
@@ -292,7 +292,6 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
                 type="file"
                 accept="image/*"
                 multiple
-                capture="environment"
                 onChange={handleFilesSelected}
                 className="hidden"
               />
