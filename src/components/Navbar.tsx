@@ -38,7 +38,6 @@ export default function Navbar({ page, navigate, loggedIn }: NavbarProps) {
             onClick={() => { navigate('home'); setMenuOpen(false); }}
             className="flex items-center gap-2.5 text-terra"
           >
-            <PawIcon size={28} />
             <span className="text-xl text-dark">
               <span style={{ fontFamily: 'var(--font-script)' }}>Patitas</span>
               <span className="font-display font-semibold text-terra"> Tucumán</span>
