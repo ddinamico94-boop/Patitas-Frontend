@@ -231,23 +231,25 @@ export default function ReportDetail({ id, navigate }: { id: string | null; navi
               </div>
             )}
 
-            {/* Map placeholder */}
+            {/* Map */}
             <div className="bg-white rounded-2xl p-5 border border-border">
               <h3 className="font-display text-lg font-semibold text-dark mb-3">Ubicación aproximada</h3>
-              <div className="h-40 rounded-xl overflow-hidden relative" style={{ background: 'linear-gradient(135deg, #EFE9DC 0%, #E4DDD1 100%)' }}>
-                <div className="absolute inset-0 opacity-30" style={{
-                  backgroundImage: 'linear-gradient(rgba(139,107,80,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(139,107,80,0.3) 1px, transparent 1px)',
-                  backgroundSize: '20px 20px'
-                }} />
-                <div className="absolute inset-0 flex items-center justify-center flex-col gap-2">
-                  <div className="w-10 h-10 bg-terra rounded-full flex items-center justify-center shadow-lg">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    </svg>
-                  </div>
-                  <span className="text-xs font-medium text-dark bg-white/80 px-2.5 py-1 rounded-lg">{animal.zone}</span>
+              {(animal.lat !== 0 || animal.lng !== 0) ? (
+                <div className="rounded-xl overflow-hidden border border-border">
+                  <iframe
+                    title="Ubicación del reporte"
+                    width="100%"
+                    height="160"
+                    style={{ border: 0 }}
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${animal.lng - 0.01}%2C${animal.lat - 0.01}%2C${animal.lng + 0.01}%2C${animal.lat + 0.01}&layer=mapnik&marker=${animal.lat}%2C${animal.lng}`}
+                  />
+                  <p className="text-xs text-warm-mid px-3 py-2 bg-warm">{animal.zone}</p>
                 </div>
-              </div>
+              ) : (
+                <div className="h-40 rounded-xl border-2 border-dashed border-border flex items-center justify-center text-center p-4">
+                  <p className="text-sm text-warm-mid">Este reporte no tiene una ubicación exacta guardada. Zona: {animal.zone}</p>
+                </div>
+              )}
               <button onClick={() => navigate('map')} className="mt-3 w-full py-2 text-xs text-terra font-medium hover:underline">
                 Ver en mapa completo →
               </button>
