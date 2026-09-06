@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { NavigateFn, AnimalStatus, AnimalType } from '../data/mock';
-import { createReport, uploadImages } from '../lib/api';
-import { getSession } from '../lib/auth';
+import { createReport, uploadImages, getSession } from '../lib/api';
 
 const steps = [
   { n: 1, label: 'Tipo de reporte' },
