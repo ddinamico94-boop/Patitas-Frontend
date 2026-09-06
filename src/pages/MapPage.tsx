@@ -43,7 +43,6 @@ export default function MapPage({ navigate }: { navigate: NavigateFn }) {
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<AnimalReport | null>(null);
   const [activeFilter, setActiveFilter] = useState<AnimalStatus | 'todos'>('todos');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -71,18 +70,11 @@ export default function MapPage({ navigate }: { navigate: NavigateFn }) {
 
   return (
     <div className="bg-cream" style={{ height: 'calc(100vh - 64px)' }}>
-      <div className="h-full flex">
-        {/* Sidebar */}
-        <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 absolute lg:relative z-30 h-full w-80 bg-white border-r border-border flex flex-col transition-transform duration-300`}>
+      <div className="h-full flex flex-col lg:flex-row">
+        {/* Sidebar: apilado arriba del mapa en mobile, al costado en desktop */}
+        <div className="w-full lg:w-80 max-h-[45vh] lg:max-h-none bg-white border-b lg:border-b-0 lg:border-r border-border flex flex-col shrink-0">
           <div className="p-4 border-b border-border">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-display text-lg font-semibold text-dark">Mapa de reportes</h2>
-              <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 text-warm-mid">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+            <h2 className="font-display text-lg font-semibold text-dark mb-2">Mapa de reportes</h2>
             <p className="text-xs text-warm-mid mb-3">Explorá los reportes de animales en Tucumán.</p>
             <div className="flex gap-1.5 flex-wrap">
               {filterOptions.map((f) => (
@@ -135,7 +127,7 @@ export default function MapPage({ navigate }: { navigate: NavigateFn }) {
             )}
           </div>
 
-          <div className="p-4 border-t border-border">
+          <div className="hidden lg:block p-4 border-t border-border">
             <div className="grid grid-cols-2 gap-2 text-xs text-warm-mid">
               {(['perdido', 'encontrado', 'en_calle', 'rescatado'] as AnimalStatus[]).map((s) => (
                 <div key={s} className="flex items-center gap-1.5">
@@ -148,18 +140,7 @@ export default function MapPage({ navigate }: { navigate: NavigateFn }) {
         </div>
 
         {/* Map area */}
-        <div className="flex-1 relative">
-          {/* Mobile sidebar toggle */}
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden absolute top-4 left-4 z-[1000] bg-white shadow-lg rounded-xl px-3 py-2 text-sm font-medium text-dark flex items-center gap-2 border border-border"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M3 12h18M3 6h18M3 18h18" />
-            </svg>
-            Ver lista
-          </button>
-
+        <div className="flex-1 relative min-h-[250px]">
           {/* Count badge */}
           <div className="absolute top-4 right-4 z-[1000] bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2 text-xs font-medium text-dark border border-border shadow">
             {visible.length} reportes activos
