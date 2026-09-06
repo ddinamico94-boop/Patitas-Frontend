@@ -100,9 +100,9 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
   ];
 
   return (
-    <div className="bg-cream min-h-full">
+    <div className="bg-cream min-h-full" >
       {/* Hero */}
-      <section className="bg-cream pt-16 pb-0 overflow-hidden">
+      <section className="bg-cream pt-2 pb-0 overflow-hidden sm:pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div className="py-8 lg:py-16">
