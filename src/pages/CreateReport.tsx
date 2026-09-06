@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { NavigateFn, AnimalStatus, AnimalType } from '../data/mock';
 import { createReport, uploadImages } from '../lib/api';
+import { getSession } from '../lib/auth';
 
 const steps = [
   { n: 1, label: 'Tipo de reporte' },
@@ -107,6 +108,10 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
 
   const handleSubmit = async () => {
     setSubmitError(null);
+    if (!getSession()) {
+      setSubmitError('Necesitás iniciar sesión para publicar un reporte.');
+      return;
+    }
     if (!contactName || !phone || !email) {
       setSubmitError('Completá nombre, teléfono y email de contacto.');
       return;

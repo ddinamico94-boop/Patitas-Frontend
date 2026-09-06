@@ -142,30 +142,21 @@ export async function createReport(input: CreateReportInput): Promise<AnimalRepo
 }
 
 /**
- * Sube una imagen y devuelve su URL pública.
- *
- * ⚠️ AJUSTAR SI HACE FALTA: asumido acá que existe POST /api/uploads,
- * recibiendo form-data con el campo "file", y que responde { url: string }.
- * Si tu uploads.routes.js usa otro path, otro campo, u otra forma de respuesta,
- * solo hay que tocar esta función.
+ * Sube hasta 10 imágenes en una sola request y devuelve sus URLs públicas.
+ * Coincide con POST /api/uploads (multer .array('images', 10), requireAuth),
+ * que responde { urls: string[] }.
  */
-export async function uploadImage(file: File): Promise<string> {
+export async function uploadImages(files: File[]): Promise<string[]> {
+  if (files.length === 0) return [];
+
   const formData = new FormData();
-  formData.append('file', file);
+  files.forEach((file) => formData.append('images', file));
 
   const res = await fetch(`${API_URL}/api/uploads`, {
     method: 'POST',
     headers: { ...authHeaders() }, // sin Content-Type: el browser arma el boundary del form-data
     body: formData,
   });
-  const data = await handleResponse<{ url: string }>(res);
-  return data.url;
-}
-
-export async function uploadImages(files: File[]): Promise<string[]> {
-  const urls: string[] = [];
-  for (const file of files) {
-    urls.push(await uploadImage(file));
-  }
-  return urls;
+  const data = await handleResponse<{ urls: string[] }>(res);
+  return data.urls;
 }
