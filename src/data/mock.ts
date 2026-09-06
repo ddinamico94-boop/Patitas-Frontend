@@ -46,3 +46,12 @@ export const statusDot: Record<AnimalStatus, string> = {
   ayudado: '#22C55E',
   rescatado: '#8B5CF6',
 };
+
+/**
+ * Compatibilidad temporal: MapPage.tsx y Home.tsx todavía importan `reports`
+ * desde acá. Se deja vacío (ya no hay datos demo) para no romper el build.
+ * Lo ideal es migrar esas dos pantallas a `listReports()` de `lib/api.ts`,
+ * igual que ya se hizo en Reports.tsx y ReportDetail.tsx.
+ */
+export const reports: AnimalReport[] = [];
+Si
