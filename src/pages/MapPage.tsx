@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { reports, AnimalReport, statusLabel, statusColor, statusDot, AnimalStatus, NavigateFn } from '../data/mock';
+import { statusLabel, statusColor, statusDot, AnimalStatus, NavigateFn } from '../data/mock';
+import { listReports, AnimalReport } from '../lib/api';
 
 const filterOptions: { label: string; value: AnimalStatus | 'todos' }[] = [
   { label: 'Todos', value: 'todos' },
@@ -37,11 +38,36 @@ function FlyToSelected({ animal }: { animal: AnimalReport | null }) {
 }
 
 export default function MapPage({ navigate }: { navigate: NavigateFn }) {
+  const [allReports, setAllReports] = useState<AnimalReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<AnimalReport | null>(null);
   const [activeFilter, setActiveFilter] = useState<AnimalStatus | 'todos'>('todos');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const visible = reports.filter((r) => activeFilter === 'todos' || r.status === activeFilter);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError(null);
+    listReports({ pageSize: 50 })
+      .then((data) => {
+        if (active) setAllReports(data.items);
+      })
+      .catch((err) => {
+        if (active) setError(err instanceof Error ? err.message : 'No se pudieron cargar los reportes.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Solo se pueden ubicar en el mapa los reportes que tienen coordenadas reales
+  // (el usuario tocó "Usar mi ubicación actual" al crearlos). El resto no aparece.
+  const withCoords = allReports.filter((r) => r.lat !== 0 || r.lng !== 0);
+  const visible = withCoords.filter((r) => activeFilter === 'todos' || r.status === activeFilter);
 
   return (
     <div className="bg-cream" style={{ height: 'calc(100vh - 64px)' }}>
@@ -76,25 +102,37 @@ export default function MapPage({ navigate }: { navigate: NavigateFn }) {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            {visible.map((animal) => (
-              <button
-                key={animal.id}
-                onClick={() => setSelected(animal)}
-                className={`w-full text-left p-4 border-b border-border hover:bg-warm transition-colors flex gap-3 items-start ${selected?.id === animal.id ? 'bg-warm' : ''}`}
-              >
-                <div className="w-12 h-12 rounded-xl overflow-hidden bg-cream shrink-0">
-                  <img src={animal.imageUrl} alt={animal.name} className="w-full h-full object-cover" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-1 mb-0.5">
-                    <span className="font-semibold text-dark text-sm truncate">{animal.name}</span>
-                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: statusDot[animal.status] }} />
+            {loading ? (
+              <p className="text-sm text-warm-mid p-4">Cargando reportes...</p>
+            ) : error ? (
+              <p className="text-sm text-red-600 p-4">{error}</p>
+            ) : visible.length === 0 ? (
+              <p className="text-sm text-warm-mid p-4">
+                No hay reportes con ubicación para mostrar. Para que un reporte aparezca acá, hay que crearlo usando "Usar mi ubicación actual".
+              </p>
+            ) : (
+              visible.map((animal) => (
+                <button
+                  key={animal.id}
+                  onClick={() => setSelected(animal)}
+                  className={`w-full text-left p-4 border-b border-border hover:bg-warm transition-colors flex gap-3 items-start ${selected?.id === animal.id ? 'bg-warm' : ''}`}
+                >
+                  <div className="w-12 h-12 rounded-xl overflow-hidden bg-cream shrink-0">
+                    {animal.imageUrl ? (
+                      <img src={animal.imageUrl} alt={animal.name} className="w-full h-full object-cover" />
+                    ) : null}
                   </div>
-                  <p className="text-xs text-warm-mid">{statusLabel[animal.status]}</p>
-                  <p className="text-xs text-warm-mid truncate">{animal.zone}</p>
-                </div>
-              </button>
-            ))}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1 mb-0.5">
+                      <span className="font-semibold text-dark text-sm truncate">{animal.name}</span>
+                      <div className="w-2 h-2 rounded-full shrink-0" style={{ background: statusDot[animal.status] }} />
+                    </div>
+                    <p className="text-xs text-warm-mid">{statusLabel[animal.status]}</p>
+                    <p className="text-xs text-warm-mid truncate">{animal.zone}</p>
+                  </div>
+                </button>
+              ))
+            )}
           </div>
 
           <div className="p-4 border-t border-border">
@@ -147,11 +185,13 @@ export default function MapPage({ navigate }: { navigate: NavigateFn }) {
               >
                 <Popup>
                   <div style={{ width: 200 }}>
-                    <img
-                      src={animal.imageUrl}
-                      alt={animal.name}
-                      style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }}
-                    />
+                    {animal.imageUrl && (
+                      <img
+                        src={animal.imageUrl}
+                        alt={animal.name}
+                        style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }}
+                      />
+                    )}
                     <strong>{animal.name}</strong>
                     <div style={{ fontSize: 12, color: '#6b6259', margin: '4px 0' }}>
                       {statusLabel[animal.status]} · {animal.zone}
