@@ -54,4 +54,3 @@ export const statusDot: Record<AnimalStatus, string> = {
  * igual que ya se hizo en Reports.tsx y ReportDetail.tsx.
  */
 export const reports: AnimalReport[] = [];
-Si
