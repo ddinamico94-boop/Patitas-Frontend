@@ -125,7 +125,7 @@ export default function Navbar({ page, navigate, loggedIn }: NavbarProps) {
         </div>
 
         {menuOpen && (
-          <div className="md:hidden pb-4 border-t border-border mt-0">
+          <div className="md:hidden pb-4 border-t border-border mt-0" style={{height: 'calc(100vh - 64px)', overflowY: 'auto'}}>
             <div className="pt-3 space-y-0.5">
               {navLinks.map((link) => (
                 <button
