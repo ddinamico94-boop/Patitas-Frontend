@@ -49,7 +49,6 @@ export default function Login({ navigate, onLogin }: { navigate: NavigateFn; onL
             <p className="font-display text-4xl font-semibold leading-tight mb-4">
               "Cada reporte<br />puede cambiar<br />una historia."
             </p>
-            <p className="text-white/70 text-sm">Más de 1.200 animales reportados en Tucumán.</p>
           </div>
         </div>
       </div>
