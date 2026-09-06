@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { NavigateFn } from '../data/mock';
+import { NavigateFn, AnimalStatus, AnimalType } from '../data/mock';
+import { createReport, uploadImages } from '../lib/api';
 
 const steps = [
   { n: 1, label: 'Tipo de reporte' },
@@ -27,6 +28,8 @@ const animalKinds = [
 export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const [reportType, setReportType] = useState<ReportType>('');
   const [animalKind, setAnimalKind] = useState<AnimalKind>('');
@@ -34,7 +37,8 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
   const [date, setDate] = useState('');
   const [address, setAddress] = useState('');
   const [zone, setZone] = useState('');
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([]); // previews base64
+  const [rawFiles, setRawFiles] = useState<File[]>([]); // archivos reales para subir
   const [color, setColor] = useState('');
   const [size, setSize] = useState('');
   const [notes, setNotes] = useState('');
@@ -84,7 +88,13 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
       };
       reader.readAsDataURL(file);
     });
+    setRawFiles((prev) => [...prev, ...selected]);
     e.target.value = '';
+  };
+
+  const removeImage = (i: number) => {
+    setImages((prev) => prev.filter((_, j) => j !== i));
+    setRawFiles((prev) => prev.filter((_, j) => j !== i));
   };
 
   const progress = ((step - 1) / (steps.length - 1)) * 100;
@@ -93,6 +103,39 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
     if (step === 1) return reportType !== '' && animalKind !== '';
     if (step === 2) return address !== '' || zone !== '' || coords !== null;
     return true;
+  };
+
+  const handleSubmit = async () => {
+    setSubmitError(null);
+    if (!contactName || !phone || !email) {
+      setSubmitError('Completá nombre, teléfono y email de contacto.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const uploadedUrls = rawFiles.length > 0 ? await uploadImages(rawFiles) : [];
+      await createReport({
+        name: animalName || 'Sin nombre',
+        type: animalKind as AnimalType,
+        status: reportType as AnimalStatus,
+        zone: zone || address || 'Sin especificar',
+        address: address || undefined,
+        description: notes || undefined,
+        color: color || undefined,
+        size: size || undefined,
+        contactName,
+        phone,
+        email,
+        mapLat: coords?.lat,
+        mapLng: coords?.lng,
+        images: uploadedUrls,
+      });
+      setSubmitted(true);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'No se pudo publicar el reporte. Probá de nuevo.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -301,7 +344,7 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
                   <div key={i} className="aspect-square rounded-xl overflow-hidden bg-warm relative group">
                     <img src={img} alt="" className="w-full h-full object-cover" />
                     <button
-                      onClick={() => setImages(images.filter((_, j) => j !== i))}
+                      onClick={() => removeImage(i)}
                       className="absolute top-1.5 right-1.5 w-6 h-6 bg-dark/70 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                     >✕</button>
                   </div>
@@ -386,6 +429,12 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
               </div>
             </div>
           )}
+
+          {submitError && (
+            <div className="mt-5 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-4">
+              {submitError}
+            </div>
+          )}
         </div>
 
         {/* Navigation */}
@@ -393,17 +442,18 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
           {step > 1 && (
             <button
               onClick={() => setStep(step - 1)}
-              className="px-6 py-3 border-2 border-border rounded-xl font-semibold text-dark hover:border-terra hover:text-terra transition-colors"
+              disabled={submitting}
+              className="px-6 py-3 border-2 border-border rounded-xl font-semibold text-dark hover:border-terra hover:text-terra transition-colors disabled:opacity-40"
             >
               Anterior
             </button>
           )}
           <button
-            onClick={() => step < 5 ? setStep(step + 1) : setSubmitted(true)}
-            disabled={!canNext()}
+            onClick={() => (step < 5 ? setStep(step + 1) : handleSubmit())}
+            disabled={!canNext() || submitting}
             className="flex-1 py-3 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {step === 5 ? 'Publicar reporte' : 'Continuar'}
+            {submitting ? 'Publicando...' : step === 5 ? 'Publicar reporte' : 'Continuar'}
           </button>
         </div>
       </div>

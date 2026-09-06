@@ -1,14 +1,68 @@
-import { useState } from 'react';
-import { reports, statusLabel, statusColor, NavigateFn } from '../data/mock';
+import { useEffect, useState } from 'react';
+import { statusLabel, statusColor, NavigateFn } from '../data/mock';
+import { getReport, listReports, AnimalReport } from '../lib/api';
 import Footer from '../components/Footer';
 
 export default function ReportDetail({ id, navigate }: { id: string | null; navigate: NavigateFn }) {
-  const animal = reports.find((r) => r.id === id) || reports[0];
+  const [animal, setAnimal] = useState<AnimalReport | null>(null);
+  const [related, setRelated] = useState<AnimalReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [imgIdx, setImgIdx] = useState(0);
   const [showContact, setShowContact] = useState(false);
 
+  useEffect(() => {
+    if (!id) {
+      setError('Reporte no encontrado.');
+      setLoading(false);
+      return;
+    }
+    let active = true;
+    setLoading(true);
+    setError(null);
+    setImgIdx(0);
+    getReport(id)
+      .then(async (data) => {
+        if (!active) return;
+        setAnimal(data);
+        try {
+          const { items } = await listReports({ zone: data.zone, pageSize: 4 });
+          if (active) setRelated(items.filter((r) => r.id !== data.id).slice(0, 3));
+        } catch {
+          // Si fallan los relacionados no bloqueamos el resto de la pantalla.
+        }
+      })
+      .catch((err) => {
+        if (active) setError(err instanceof Error ? err.message : 'No se pudo cargar el reporte.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="bg-cream min-h-full flex items-center justify-center py-24 text-warm-mid">
+        Cargando reporte...
+      </div>
+    );
+  }
+
+  if (error || !animal) {
+    return (
+      <div className="bg-cream min-h-full flex flex-col items-center justify-center py-24 gap-4">
+        <p className="text-red-600">{error ?? 'Reporte no encontrado.'}</p>
+        <button onClick={() => navigate('reports')} className="text-terra font-medium hover:underline">
+          Volver a reportes
+        </button>
+      </div>
+    );
+  }
+
   const emoji = animal.type === 'perro' ? '🐕' : animal.type === 'gato' ? '🐈' : '🐾';
-  const related = reports.filter((r) => r.id !== animal.id && (r.zone === animal.zone || r.type === animal.type)).slice(0, 3);
 
   return (
     <div className="bg-cream min-h-full">
@@ -29,11 +83,15 @@ export default function ReportDetail({ id, navigate }: { id: string | null; navi
           <div className="lg:col-span-3 space-y-6">
             {/* Main image */}
             <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-warm">
-              <img
-                src={animal.images[imgIdx] || animal.imageUrl}
-                alt={animal.name}
-                className="w-full h-full object-cover"
-              />
+              {(animal.images[imgIdx] || animal.imageUrl) ? (
+                <img
+                  src={animal.images[imgIdx] || animal.imageUrl}
+                  alt={animal.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-5xl">{emoji}</div>
+              )}
             </div>
             {animal.images.length > 1 && (
               <div className="flex gap-2">
@@ -52,7 +110,7 @@ export default function ReportDetail({ id, navigate }: { id: string | null; navi
             {/* Description */}
             <div className="bg-white rounded-2xl p-6 border border-border">
               <h3 className="font-display text-xl font-semibold text-dark mb-3">Descripción</h3>
-              <p className="text-dark/70 leading-relaxed">{animal.description}</p>
+              <p className="text-dark/70 leading-relaxed">{animal.description || 'Sin descripción adicional.'}</p>
             </div>
 
             {/* Characteristics */}
@@ -61,9 +119,9 @@ export default function ReportDetail({ id, navigate }: { id: string | null; navi
               <div className="grid grid-cols-2 gap-4">
                 {[
                   { label: 'Especie', value: `${emoji} ${animal.type === 'perro' ? 'Perro' : animal.type === 'gato' ? 'Gato' : 'Otro'}` },
-                  { label: 'Raza', value: animal.breed },
-                  { label: 'Color', value: animal.color },
-                  { label: 'Tamaño', value: animal.size },
+                  { label: 'Raza', value: animal.breed || '—' },
+                  { label: 'Color', value: animal.color || '—' },
+                  { label: 'Tamaño', value: animal.size || '—' },
                   { label: 'Zona', value: animal.zone },
                   { label: 'Fecha', value: animal.date },
                 ].map((item) => (
@@ -95,7 +153,7 @@ export default function ReportDetail({ id, navigate }: { id: string | null; navi
               <div className="flex items-start justify-between gap-3 mb-4">
                 <div>
                   <h1 className="font-display text-3xl font-semibold text-dark mb-1">{animal.name}</h1>
-                  <p className="text-warm-mid text-sm">{animal.breed}</p>
+                  <p className="text-warm-mid text-sm">{animal.breed || '—'}</p>
                 </div>
                 <span className={`text-xs font-medium px-3 py-1.5 rounded-full shrink-0 ${statusColor[animal.status]}`}>
                   {statusLabel[animal.status]}

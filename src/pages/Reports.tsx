@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { reports, AnimalStatus, statusLabel, NavigateFn } from '../data/mock';
+import { useEffect, useState } from 'react';
+import { AnimalStatus, statusLabel, NavigateFn } from '../data/mock';
+import { listReports, AnimalReport } from '../lib/api';
 import AnimalCard from '../components/AnimalCard';
 import Footer from '../components/Footer';
 
@@ -16,10 +17,33 @@ const zones = ['Todas las zonas', 'Centro', 'Yerba Buena', 'Las Talitas', 'Villa
 const species = ['Todas las especies', 'Perros', 'Gatos', 'Otros'];
 
 export default function Reports({ navigate }: { navigate: NavigateFn }) {
+  const [reports, setReports] = useState<AnimalReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [activeFilter, setActiveFilter] = useState<AnimalStatus | 'todos'>('todos');
   const [search, setSearch] = useState('');
   const [zone, setZone] = useState('Todas las zonas');
   const [specie, setSpecie] = useState('Todas las especies');
+
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError(null);
+    listReports({ pageSize: 50 })
+      .then((data) => {
+        if (active) setReports(data.items);
+      })
+      .catch((err) => {
+        if (active) setError(err instanceof Error ? err.message : 'No se pudieron cargar los reportes.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const filtered = reports.filter((r) => {
     const matchStatus = activeFilter === 'todos' || r.status === activeFilter;
@@ -93,13 +117,19 @@ export default function Reports({ navigate }: { navigate: NavigateFn }) {
         </div>
 
         {/* Results count */}
-        <p className="text-sm text-warm-mid mb-6">
-          {filtered.length} {filtered.length === 1 ? 'reporte encontrado' : 'reportes encontrados'}
-          {activeFilter !== 'todos' && ` · ${statusLabel[activeFilter as AnimalStatus]}`}
-        </p>
+        {!loading && !error && (
+          <p className="text-sm text-warm-mid mb-6">
+            {filtered.length} {filtered.length === 1 ? 'reporte encontrado' : 'reportes encontrados'}
+            {activeFilter !== 'todos' && ` · ${statusLabel[activeFilter as AnimalStatus]}`}
+          </p>
+        )}
 
-        {/* Grid */}
-        {filtered.length > 0 ? (
+        {/* Grid / estados */}
+        {loading ? (
+          <div className="text-center py-20 text-warm-mid">Cargando reportes...</div>
+        ) : error ? (
+          <div className="text-center py-20 text-red-600">{error}</div>
+        ) : filtered.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {filtered.map((animal) => (
               <AnimalCard key={animal.id} animal={animal} navigate={navigate} />
