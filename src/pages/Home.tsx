@@ -1,14 +1,9 @@
-import { reports, NavigateFn } from '../data/mock';
+import { useEffect, useState } from 'react';
+import { NavigateFn } from '../data/mock';
+import { listReports, AnimalReport } from '../lib/api';
 import AnimalCard from '../components/AnimalCard';
 import Footer from '../components/Footer';
 import { PawIcon } from '../components/Navbar';
-
-const stats = [
-  { icon: '', value: '1.247', label: 'Animales reportados' },
-  { icon: '', value: '643', label: 'Animales ayudados' },
-  { icon: '', value: '312', label: 'Reencontrados con familia' },
-  { icon: '', value: '89', label: 'Reportes activos hoy' },
-];
 
 const steps = [
   {
@@ -44,8 +39,65 @@ const steps = [
   },
 ];
 
+interface HomeStats {
+  total: number;
+  perdidos: number;
+  encontrados: number;
+  ayudados: number; // ayudado + rescatado
+}
+
 export default function Home({ navigate }: { navigate: NavigateFn }) {
-  const recent = reports.slice(0, 4);
+  const [recent, setRecent] = useState<AnimalReport[]>([]);
+  const [loadingRecent, setLoadingRecent] = useState(true);
+  const [stats, setStats] = useState<HomeStats | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    listReports({ pageSize: 4 })
+      .then((data) => {
+        if (active) setRecent(data.items);
+      })
+      .catch(() => {
+        // si falla, simplemente no mostramos reportes recientes
+      })
+      .finally(() => {
+        if (active) setLoadingRecent(false);
+      });
+
+    // El "total" que devuelve cada consulta es el conteo real en el backend,
+    // sin importar cuántos items se traigan por página (pageSize: 1 alcanza).
+    Promise.all([
+      listReports({ pageSize: 1 }),
+      listReports({ pageSize: 1, status: 'perdido' }),
+      listReports({ pageSize: 1, status: 'encontrado' }),
+      listReports({ pageSize: 1, status: 'ayudado' }),
+      listReports({ pageSize: 1, status: 'rescatado' }),
+    ])
+      .then(([all, perdidos, encontrados, ayudados, rescatados]) => {
+        if (!active) return;
+        setStats({
+          total: all.total,
+          perdidos: perdidos.total,
+          encontrados: encontrados.total,
+          ayudados: ayudados.total + rescatados.total,
+        });
+      })
+      .catch(() => {
+        if (active) setStats(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const statTiles = [
+    { value: stats?.total, label: 'Animales reportados' },
+    { value: stats?.perdidos, label: 'Perdidos' },
+    { value: stats?.encontrados, label: 'Encontrados' },
+    { value: stats?.ayudados, label: 'Ayudados o rescatados' },
+  ];
 
   return (
     <div className="bg-cream min-h-full">
@@ -90,12 +142,12 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
               <div className="absolute inset-0 bg-gradient-to-t from-dark/30 via-transparent to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 flex gap-3">
                 <div className="bg-white/95 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-lg">
-                  <p className="text-xs text-warm-mid font-medium mb-0.5">Reportes hoy</p>
-                  <p className="font-display text-2xl font-bold text-dark">89</p>
+                  <p className="text-xs text-warm-mid font-medium mb-0.5">Reportes totales</p>
+                  <p className="font-display text-2xl font-bold text-dark">{stats?.total ?? '—'}</p>
                 </div>
                 <div className="bg-terra text-white rounded-2xl px-4 py-3 shadow-lg">
-                  <p className="text-xs text-white/80 font-medium mb-0.5">Ayudados este mes</p>
-                  <p className="font-display text-2xl font-bold">47</p>
+                  <p className="text-xs text-white/80 font-medium mb-0.5">Ayudados o rescatados</p>
+                  <p className="font-display text-2xl font-bold">{stats?.ayudados ?? '—'}</p>
                 </div>
               </div>
             </div>
@@ -107,10 +159,9 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {stats.map((s) => (
+            {statTiles.map((s) => (
               <div key={s.label} className="bg-white rounded-2xl p-6 border border-border text-center">
-                <div className="text-3xl mb-3">{s.icon}</div>
-                <div className="font-display text-3xl font-semibold text-dark mb-1">{s.value}</div>
+                <div className="font-display text-3xl font-semibold text-dark mb-1">{s.value ?? '—'}</div>
                 <div className="text-sm text-warm-mid">{s.label}</div>
               </div>
             ))}
@@ -160,11 +211,19 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
               </svg>
             </button>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {recent.map((animal) => (
-              <AnimalCard key={animal.id} animal={animal} navigate={navigate} />
-            ))}
-          </div>
+
+          {loadingRecent ? (
+            <p className="text-warm-mid text-center py-10">Cargando reportes...</p>
+          ) : recent.length > 0 ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {recent.map((animal) => (
+                <AnimalCard key={animal.id} animal={animal} navigate={navigate} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-warm-mid text-center py-10">Todavía no hay reportes publicados.</p>
+          )}
+
           <div className="mt-8 text-center sm:hidden">
             <button
               onClick={() => navigate('reports')}
