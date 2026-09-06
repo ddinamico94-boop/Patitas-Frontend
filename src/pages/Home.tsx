@@ -170,7 +170,7 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
       </section>
 
       {/* How it works */}
-      <section className="py-16 bg-warm">
+      <section id="como-funciona" className="py-16 bg-warm scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="font-display text-4xl font-semibold text-dark mb-4">¿Cómo funciona?</h2>

@@ -30,6 +30,23 @@ export { PawIcon };
 export default function Navbar({ page, navigate, loggedIn }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const handleHowItWorksClick = () => {
+    const scrollToHowItWorks = () => {
+      const section = document.getElementById('como-funciona');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
+
+    if (page === 'home') {
+      scrollToHowItWorks();
+      return;
+    }
+
+    navigate('home');
+    window.setTimeout(scrollToHowItWorks, 50);
+  };
+
   return (
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -59,7 +76,7 @@ export default function Navbar({ page, navigate, loggedIn }: NavbarProps) {
               </button>
             ))}
             <button
-              onClick={() => navigate('home')}
+              onClick={handleHowItWorksClick}
               className="px-4 py-2 rounded-lg text-sm font-medium text-warm-mid hover:text-dark hover:bg-warm transition-colors"
             >
               Cómo ayudar
@@ -122,7 +139,7 @@ export default function Navbar({ page, navigate, loggedIn }: NavbarProps) {
                 </button>
               ))}
               <button
-                onClick={() => { navigate('home'); setMenuOpen(false); }}
+                onClick={() => { handleHowItWorksClick(); setMenuOpen(false); }}
                 className="block w-full text-left px-4 py-3 text-sm font-medium text-dark hover:bg-warm rounded-lg transition-colors"
               >
                 Cómo ayudar
