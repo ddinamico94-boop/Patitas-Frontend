@@ -3,6 +3,14 @@ import { statusLabel, statusColor, NavigateFn } from '../data/mock';
 import { getReport, listReports, AnimalReport } from '../lib/api';
 import Footer from '../components/Footer';
 
+function buildWhatsAppLink(phone: string, message: string): string {
+  // Arma un número apto para wa.me: saca todo lo que no sea dígito y el 0 de larga distancia,
+  // y antepone el código de país (54, Argentina). Puede necesitar ajuste según cómo
+  // guarden el teléfono los usuarios (con o sin 15, característica, etc.).
+  const digits = phone.replace(/\D/g, '').replace(/^0/, '');
+  return `https://wa.me/54${digits}?text=${encodeURIComponent(message)}`;
+}
+
 export default function ReportDetail({ id, navigate }: { id: string | null; navigate: NavigateFn }) {
   const [animal, setAnimal] = useState<AnimalReport | null>(null);
   const [related, setRelated] = useState<AnimalReport[]>([]);
@@ -10,6 +18,33 @@ export default function ReportDetail({ id, navigate }: { id: string | null; navi
   const [error, setError] = useState<string | null>(null);
   const [imgIdx, setImgIdx] = useState(0);
   const [showContact, setShowContact] = useState(false);
+
+  const handleShare = async () => {
+    if (!animal) return;
+    const shareData = {
+      title: `${animal.name} · ${statusLabel[animal.status]}`,
+      text: `${animal.name} · ${statusLabel[animal.status]} en ${animal.zone}. Ayudemos a que vuelva a casa.`,
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // el usuario cerró el panel de compartir sin elegir nada; no hacemos nada más
+      }
+      return;
+    }
+    // Fallback para navegadores sin Web Share API (ej. desktop): copiar el link
+    try {
+      await navigator.clipboard.writeText(shareData.url);
+      alert('Link copiado. Pegalo donde quieras compartirlo.');
+    } catch {
+      window.open(
+        `https://wa.me/?text=${encodeURIComponent(`${shareData.text} ${shareData.url}`)}`,
+        '_blank'
+      );
+    }
+  };
 
   useEffect(() => {
     if (!id) {
@@ -138,7 +173,16 @@ export default function ReportDetail({ id, navigate }: { id: string | null; navi
               <h3 className="font-display text-xl font-semibold text-dark mb-2">¿Viste a este animal?</h3>
               <p className="text-dark/70 text-sm mb-4">Si tenés información sobre la ubicación o el paradero de {animal.name}, contactá directamente a quien hizo el reporte. Tu información puede hacer una gran diferencia.</p>
               <button
-                onClick={() => setShowContact(true)}
+                onClick={() => {
+                  setShowContact(true);
+                  window.open(
+                    buildWhatsAppLink(
+                      animal.phone,
+                      `Hola! Vi el reporte de ${animal.name} en Patitas Tucumán y quiero contarte algo.`
+                    ),
+                    '_blank'
+                  );
+                }}
                 className="px-5 py-2.5 bg-terra text-white text-sm font-semibold rounded-xl hover:bg-terra-dark transition-colors"
               >
                 Tengo información
@@ -178,7 +222,10 @@ export default function ReportDetail({ id, navigate }: { id: string | null; navi
                 >
                   Contactar
                 </button>
-                <button className="w-full py-3 border border-border text-warm-mid rounded-xl text-sm hover:border-terra hover:text-terra transition-colors flex items-center justify-center gap-2">
+                <button
+                  onClick={handleShare}
+                  className="w-full py-3 border border-border text-warm-mid rounded-xl text-sm hover:border-terra hover:text-terra transition-colors flex items-center justify-center gap-2"
+                >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                     <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
                     <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
