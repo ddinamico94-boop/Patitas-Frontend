@@ -1,6 +1,6 @@
 export type AnimalStatus = 'perdido' | 'encontrado' | 'en_calle' | 'ayudado' | 'rescatado';
 export type AnimalType = 'perro' | 'gato' | 'otro';
-export type Page = 'home' | 'reports' | 'map' | 'create' | 'detail' | 'login' | 'register' | 'profile' | 'admin';
+export type Page = 'home' | 'reports' | 'map' | 'create' | 'detail' | 'login' | 'register' | 'profile' | 'admin' | 'chat';
 export type NavigateFn = (page: Page, id?: string) => void;
 
 export interface AnimalReport {
@@ -21,6 +21,7 @@ export interface AnimalReport {
   images: string[];
   lat: number;
   lng: number;
+  reporterUserId: string | null;
 }
 
 export const statusLabel: Record<AnimalStatus, string> = {

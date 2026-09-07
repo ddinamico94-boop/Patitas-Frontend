@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
+import Chat from './pages/Chat';
 import { getSession, clearSession, User } from './lib/api';
 
 export default function App() {
@@ -26,8 +27,8 @@ export default function App() {
   const loggedIn = !!user;
 
   const navigate = (p: Page, id?: string) => {
-    if (p === 'create' && !loggedIn) {
-      setPendingPage('create');
+    if ((p === 'create' || p === 'chat') && !loggedIn) {
+      setPendingPage(p);
       setPage('login');
       window.scrollTo({ top: 0, behavior: 'instant' });
       return;
@@ -62,9 +63,12 @@ export default function App() {
 
       {page === 'home' && <Home navigate={navigate} />}
       {page === 'reports' && <Reports navigate={navigate} />}
-      {page === 'detail' && <ReportDetail id={selectedId} navigate={navigate} />}
+      {page === 'detail' && <ReportDetail id={selectedId} navigate={navigate} currentUserId={user?.id ?? null} />}
       {page === 'map' && <MapPage navigate={navigate} />}
       {page === 'create' && <CreateReport navigate={navigate} />}
+      {page === 'chat' && user && (
+        <Chat navigate={navigate} conversationId={selectedId} currentUserId={user.id} />
+      )}
       {page === 'login' && (
         <Login navigate={navigate} onLogin={handleLogin} />
       )}
