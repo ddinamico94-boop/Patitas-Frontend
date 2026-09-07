@@ -58,7 +58,7 @@ export default function App() {
 
   return (
     <div className="min-h-full font-sans text-dark bg-cream">
-      {!hideNav && <Navbar page={page} navigate={navigate} loggedIn={loggedIn} />}
+      {!hideNav && <Navbar page={page} navigate={navigate} loggedIn={loggedIn} onLogout={handleLogout} />}
 
       {page === 'home' && <Home navigate={navigate} />}
       {page === 'reports' && <Reports navigate={navigate} />}
