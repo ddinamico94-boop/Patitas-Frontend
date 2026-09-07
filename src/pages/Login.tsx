@@ -29,7 +29,7 @@ export default function Login({ navigate, onLogin }: { navigate: NavigateFn; onL
   };
 
   return (
-    <div className="bg-cream min-h-full flex">
+    <div className="min-h-screen bg-cream flex lg:flex-row flex-col">
       {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img
@@ -54,7 +54,7 @@ export default function Login({ navigate, onLogin }: { navigate: NavigateFn; onL
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-10">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-10">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-2.5 text-terra mb-8">
             <span className="text-xl text-dark">
@@ -122,13 +122,13 @@ export default function Login({ navigate, onLogin }: { navigate: NavigateFn; onL
               <div className="flex-1 h-px bg-border" />
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center w-full">
               <GoogleLogin
                 onSuccess={(credentialResponse) => handleGoogleSuccess(credentialResponse.credential)}
                 onError={() => setGoogleError('No se pudo iniciar sesión con Google.')}
                 text="continue_with"
                 shape="pill"
-                width="320"
+                width="100%"
               />
             </div>
             {googleLoading && (
