@@ -1,5 +1,7 @@
 import type { AnimalReport, AnimalStatus, AnimalType } from '../data/mock';
 
+// Nota: AnimalReport ahora incluye reporterUserId (ver data/mock.ts)
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 // ==== Sesión / autenticación (lo que ya tenías en este archivo) ====
@@ -103,6 +105,7 @@ function adaptReport(r: ApiReport): AnimalReport {
     images: sortedImages,
     lat: r.mapLat ?? 0,
     lng: r.mapLng ?? 0,
+    reporterUserId: r.userId ?? null,
   };
 }
 
@@ -205,4 +208,95 @@ export async function uploadImages(files: File[]): Promise<string[]> {
   });
   const data = await handleResponse<{ urls: string[] }>(res);
   return data.urls;
+}
+
+// ==== Chat: conversaciones y mensajes ====
+
+export interface ConversationParticipant {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+}
+
+export interface ConversationSummary {
+  id: string;
+  report: { id: string; name: string; status: AnimalStatus; zone: string; imageUrl: string };
+  reporter: ConversationParticipant;
+  helper: ConversationParticipant;
+  lastMessage: { content: string; createdAt: string; senderId: string } | null;
+  updatedAt: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  content: string;
+  createdAt: string;
+}
+
+interface ApiConversation {
+  id: string;
+  report: { id: string; name: string; status: AnimalStatus; zone: string; images: { url: string }[] };
+  reporter: ConversationParticipant;
+  helper: ConversationParticipant;
+  messages?: { content: string; createdAt: string; senderId: string }[];
+  updatedAt: string;
+}
+
+function adaptConversation(c: ApiConversation): ConversationSummary {
+  return {
+    id: c.id,
+    report: {
+      id: c.report.id,
+      name: c.report.name,
+      status: c.report.status,
+      zone: c.report.zone,
+      imageUrl: c.report.images[0]?.url ?? '',
+    },
+    reporter: c.reporter,
+    helper: c.helper,
+    lastMessage: c.messages && c.messages[0] ? c.messages[0] : null,
+    updatedAt: c.updatedAt,
+  };
+}
+
+export async function createConversation(reportId: string): Promise<ConversationSummary> {
+  const res = await fetch(`${API_URL}/api/conversations`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ reportId }),
+  });
+  const data = await handleResponse<{ conversation: ApiConversation }>(res);
+  return adaptConversation(data.conversation);
+}
+
+export async function listMyConversations(): Promise<ConversationSummary[]> {
+  const res = await fetch(`${API_URL}/api/conversations/mine`, { headers: { ...authHeaders() } });
+  const data = await handleResponse<{ items: ApiConversation[] }>(res);
+  return data.items.map(adaptConversation);
+}
+
+export async function getConversation(id: string): Promise<ConversationSummary> {
+  const res = await fetch(`${API_URL}/api/conversations/${id}`, { headers: { ...authHeaders() } });
+  const data = await handleResponse<{ conversation: ApiConversation }>(res);
+  return adaptConversation(data.conversation);
+}
+
+export async function listMessages(conversationId: string): Promise<ChatMessage[]> {
+  const res = await fetch(`${API_URL}/api/conversations/${conversationId}/messages`, {
+    headers: { ...authHeaders() },
+  });
+  const data = await handleResponse<{ items: ChatMessage[] }>(res);
+  return data.items;
+}
+
+export async function sendMessage(conversationId: string, content: string): Promise<ChatMessage> {
+  const res = await fetch(`${API_URL}/api/conversations/${conversationId}/messages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ content }),
+  });
+  const data = await handleResponse<{ message: ChatMessage }>(res);
+  return data.message;
 }

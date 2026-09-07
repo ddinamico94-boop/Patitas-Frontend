@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { statusLabel, statusColor, NavigateFn } from '../data/mock';
-import { getReport, listReports, AnimalReport } from '../lib/api';
+import { getReport, listReports, createConversation, AnimalReport } from '../lib/api';
 import Footer from '../components/Footer';
 
 function buildWhatsAppLink(phone: string, message: string): string {
@@ -11,13 +11,41 @@ function buildWhatsAppLink(phone: string, message: string): string {
   return `https://wa.me/54${digits}?text=${encodeURIComponent(message)}`;
 }
 
-export default function ReportDetail({ id, navigate }: { id: string | null; navigate: NavigateFn }) {
+export default function ReportDetail({
+  id,
+  navigate,
+  currentUserId,
+}: {
+  id: string | null;
+  navigate: NavigateFn;
+  currentUserId: string | null;
+}) {
   const [animal, setAnimal] = useState<AnimalReport | null>(null);
   const [related, setRelated] = useState<AnimalReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [imgIdx, setImgIdx] = useState(0);
   const [showContact, setShowContact] = useState(false);
+  const [startingChat, setStartingChat] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+
+  const handleStartChat = async () => {
+    if (!animal) return;
+    if (!currentUserId) {
+      navigate('login');
+      return;
+    }
+    setChatError(null);
+    setStartingChat(true);
+    try {
+      const conversation = await createConversation(animal.id);
+      navigate('chat', conversation.id);
+    } catch (err) {
+      setChatError(err instanceof Error ? err.message : 'No se pudo iniciar el chat.');
+    } finally {
+      setStartingChat(false);
+    }
+  };
 
   const handleShare = async () => {
     if (!animal) return;
@@ -210,12 +238,22 @@ export default function ReportDetail({ id, navigate }: { id: string | null; navi
                 {animal.zone} · Reportado el {animal.date}
               </div>
               <div className="space-y-2.5">
-                <button
-                  onClick={() => setShowContact(!showContact)}
-                  className="w-full py-3 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors"
-                >
-                  Quiero ayudar
-                </button>
+                {animal.reporterUserId && animal.reporterUserId !== currentUserId ? (
+                  <button
+                    onClick={handleStartChat}
+                    disabled={startingChat}
+                    className="w-full py-3 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors disabled:opacity-60"
+                  >
+                    {startingChat ? 'Abriendo chat...' : 'Chatear con quien reportó'}
+                  </button>
+                ) : animal.reporterUserId && animal.reporterUserId === currentUserId ? (
+                  <p className="text-xs text-warm-mid text-center py-2">Este es tu propio reporte.</p>
+                ) : (
+                  <p className="text-xs text-warm-mid text-center py-2">
+                    Este reporte no tiene chat disponible.
+                  </p>
+                )}
+                {chatError && <p className="text-xs text-red-600 text-center">{chatError}</p>}
                 <button
                   onClick={() => setShowContact(!showContact)}
                   className="w-full py-3 border-2 border-border text-dark font-semibold rounded-xl hover:border-terra hover:text-terra transition-colors"
