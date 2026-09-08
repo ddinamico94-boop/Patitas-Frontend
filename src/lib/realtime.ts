@@ -1,25 +1,34 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { io, Socket } from 'socket.io-client';
 import { getSession } from './api';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// URL raíz del backend (sin /api), ej: http://localhost:4000
+const API_URL = import.meta.env.VITE_API_URL;
 
-let client: SupabaseClient | null = null;
+let socket: Socket | null = null;
 
-function getClient(): SupabaseClient {
-  if (!client) {
-    client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-  }
-  // Le pasamos el mismo JWT que ya usa el resto de la app (viene de tu propio
-  // login), para que Supabase sepa qué usuario es y aplique las reglas de
-  // seguridad (RLS) que solo dejan ver conversaciones propias.
+/**
+ * Devuelve un socket conectado y autenticado con el JWT propio de la app
+ * (el mismo que usás para las llamadas HTTP). Si el token cambia (por
+ * ejemplo, tras un nuevo login), reconecta con el token actualizado.
+ */
+function getSocket(): Socket {
   const session = getSession();
-  if (session) {
-    client.realtime.setAuth(session.token);
+  const token = session?.token ?? null;
+
+  if (!socket) {
+    socket = io(API_URL, {
+      auth: { token },
+      withCredentials: true,
+    });
+    return socket;
   }
-  return client;
+
+  const currentAuth = socket.auth as { token: string | null };
+  if (currentAuth.token !== token) {
+    socket.auth = { token };
+    socket.disconnect().connect();
+  }
+  return socket;
 }
 
 export interface RealtimeMessage {
@@ -30,36 +39,35 @@ export interface RealtimeMessage {
   createdAt: string;
 }
 
+/**
+ * Se une a una conversación puntual y escucha sus mensajes nuevos en vivo.
+ * El backend valida que el usuario autenticado sea reporter o helper de
+ * esa conversación antes de dejarlo unirse (ver conversation:join en socket.js),
+ * así que dos personas nunca ven la conversación de otras.
+ * Misma firma que antes: devuelve una función para desuscribirse.
+ */
 export function subscribeToMessages(
   conversationId: string,
   onNewMessage: (message: RealtimeMessage) => void
 ): () => void {
-  const supabase = getClient();
+  const s = getSocket();
 
-  const channel = supabase
-    .channel(`messages:${conversationId}`)
-    .on(
-      'postgres_changes',
-      {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'messages',
-        filter: `conversationId=eq.${conversationId}`,
-      },
-      (payload) => {
-        const row = payload.new as {
-          id: string;
-          conversationId: string;
-          senderId: string;
-          content: string;
-          createdAt: string;
-        };
-        onNewMessage(row);
-      }
-    )
-    .subscribe();
+  s.emit('conversation:join', conversationId, (res: { ok: boolean; error?: string }) => {
+    if (!res.ok) {
+      console.error('No se pudo unir a la conversación:', res.error);
+    }
+  });
+
+  const handler = (message: RealtimeMessage) => {
+    if (message.conversationId === conversationId) {
+      onNewMessage(message);
+    }
+  };
+
+  s.on('message:new', handler);
 
   return () => {
-    supabase.removeChannel(channel);
+    s.off('message:new', handler);
+    s.emit('conversation:leave', conversationId);
   };
 }
