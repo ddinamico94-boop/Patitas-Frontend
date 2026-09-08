@@ -16,6 +16,22 @@ const filters: { label: string; value: AnimalStatus | 'todos' }[] = [
 const zones = ['Todas las zonas', 'Centro', 'Yerba Buena', 'Las Talitas', 'Villa 9 de Julio', 'Lomas de Tafí', 'El Manantial', 'Alberdi', 'Ranchillos', 'Muñecas', 'San Cayetano'];
 const species = ['Todas las especies', 'Perros', 'Gatos', 'Otros'];
 
+// Tarjeta "fantasma" con la misma forma que AnimalCard, para mostrar mientras
+// llegan los datos reales. Los tamaños coinciden a ojo con AnimalCard para
+// que no salte el layout cuando se reemplaza por las tarjetas de verdad.
+function SkeletonCard() {
+  return (
+    <div className="rounded-xl border border-border bg-white overflow-hidden animate-pulse">
+      <div className="aspect-[4/3] bg-warm" />
+      <div className="p-4 space-y-2">
+        <div className="h-4 bg-warm rounded w-3/4" />
+        <div className="h-3 bg-warm rounded w-1/2" />
+        <div className="h-3 bg-warm rounded w-full" />
+      </div>
+    </div>
+  );
+}
+
 export default function Reports({ navigate }: { navigate: NavigateFn }) {
   const [reports, setReports] = useState<AnimalReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -126,7 +142,11 @@ export default function Reports({ navigate }: { navigate: NavigateFn }) {
 
         {/* Grid / estados */}
         {loading ? (
-          <div className="text-center py-20 text-warm-mid">Cargando reportes...</div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
         ) : error ? (
           <div className="text-center py-20 text-red-600">{error}</div>
         ) : filtered.length > 0 ? (
