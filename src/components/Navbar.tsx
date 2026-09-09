@@ -146,12 +146,21 @@ export default function Navbar({ page, navigate, loggedIn }: NavbarProps) {
               </button>
             </div>
             <div className="mt-3 pt-3 border-t border-border flex gap-3 px-1">
-              <button
-                onClick={() => { navigate('login'); setMenuOpen(false); }}
-                className="flex-1 py-2.5 border border-border rounded-xl text-sm font-medium text-dark hover:border-terra hover:text-terra transition-colors"
-              >
-                Ingresar
-              </button>
+              {loggedIn ? (
+                <button
+                  onClick={() => { navigate('profile'); setMenuOpen(false); }}
+                  className="flex-1 py-2.5 border border-border rounded-xl text-sm font-medium text-dark hover:border-terra hover:text-terra transition-colors"
+                >
+                  Mi perfil
+                </button>
+              ) : (
+                <button
+                  onClick={() => { navigate('login'); setMenuOpen(false); }}
+                  className="flex-1 py-2.5 border border-border rounded-xl text-sm font-medium text-dark hover:border-terra hover:text-terra transition-colors"
+                >
+                  Ingresar
+                </button>
+              )}
               <button
                 onClick={() => { navigate('create'); setMenuOpen(false); }}
                 className="flex-1 py-2.5 bg-terra text-white rounded-xl text-sm font-semibold hover:bg-terra-dark transition-colors"
