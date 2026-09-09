@@ -5,10 +5,11 @@ import {
   getConversation,
   listMessages,
   sendMessage,
+  markConversationRead,
   ConversationSummary,
   ChatMessage,
 } from '../lib/api';
-import { subscribeToMessages } from '../lib/realtime';
+import { subscribeToMessages, subscribeToConversationUpdates } from '../lib/realtime';
 
 export default function Chat({
   navigate,
@@ -47,6 +48,42 @@ export default function Chat({
     };
   }, []);
 
+  // Novedades en vivo de TODAS las conversaciones (tengas o no cada una abierta):
+  // actualiza último mensaje y contador de no leídos en la lista, tipo WhatsApp.
+  useEffect(() => {
+    const unsubscribe = subscribeToConversationUpdates(({ conversationId: updatedId, message }) => {
+      setConversations((prev) => {
+        const next = prev.map((c) => {
+          if (c.id !== updatedId) return c;
+
+          // Si es la conversación que tengo abierta ahora mismo, la considero
+          // leída al toque (y se lo avisamos al backend); si no, sumo 1 al contador.
+          const isOpenNow = updatedId === conversationId;
+          if (isOpenNow) {
+            markConversationRead(updatedId).catch(() => {
+              // si falla, no rompemos la UI: en la próxima apertura se reintenta
+            });
+          }
+
+          return {
+            ...c,
+            lastMessage: { content: message.content, createdAt: message.createdAt, senderId: message.senderId },
+            updatedAt: message.createdAt,
+            unreadCount: isOpenNow ? 0 : c.unreadCount + 1,
+          };
+        });
+
+        // Más reciente primero, como en cualquier lista de chats
+        return [...next].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+      });
+    });
+
+    return unsubscribe;
+    // Ojo: no depende de `conversations` a propósito (evita recrear la suscripción
+    // por cada mensaje); usa el valor más reciente de conversationId por closure.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationId]);
+
   // Conversación activa + sus mensajes + suscripción en vivo
   useEffect(() => {
     if (!conversationId) {
@@ -70,6 +107,12 @@ export default function Chat({
       .finally(() => {
         if (alive) setLoadingMessages(false);
       });
+
+    // Al abrir el chat, lo marcamos como leído y bajamos su contador en la lista.
+    markConversationRead(conversationId).catch(() => {
+      // no bloqueante: si falla, el contador puede quedar desactualizado hasta reintentar
+    });
+    setConversations((prev) => prev.map((c) => (c.id === conversationId ? { ...c, unreadCount: 0 } : c)));
 
     const unsubscribe = subscribeToMessages(conversationId, (msg) => {
       setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
@@ -116,6 +159,7 @@ export default function Chat({
             ) : (
               conversations.map((c) => {
                 const other = c.reporter.id === currentUserId ? c.helper : c.reporter;
+                const hasUnread = c.unreadCount > 0;
                 return (
                   <button
                     key={c.id}
@@ -130,11 +174,18 @@ export default function Chat({
                       ) : null}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-dark text-sm truncate">
+                      <p className={`text-sm truncate ${hasUnread ? 'font-bold text-dark' : 'font-semibold text-dark'}`}>
                         {c.report.name} · {other.name}
                       </p>
-                      <p className="text-xs text-warm-mid truncate">{c.lastMessage?.content ?? 'Sin mensajes todavía'}</p>
+                      <p className={`text-xs truncate ${hasUnread ? 'text-dark font-medium' : 'text-warm-mid'}`}>
+                        {c.lastMessage?.content ?? 'Sin mensajes todavía'}
+                      </p>
                     </div>
+                    {hasUnread && (
+                      <span className="shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-terra text-white text-[11px] font-bold flex items-center justify-center">
+                        {c.unreadCount > 99 ? '99+' : c.unreadCount}
+                      </span>
+                    )}
                   </button>
                 );
               })

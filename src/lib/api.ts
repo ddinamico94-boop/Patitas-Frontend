@@ -225,6 +225,7 @@ export interface ConversationSummary {
   helper: ConversationParticipant;
   lastMessage: { content: string; createdAt: string; senderId: string } | null;
   updatedAt: string;
+  unreadCount: number;
 }
 
 export interface ChatMessage {
@@ -242,6 +243,7 @@ interface ApiConversation {
   helper: ConversationParticipant;
   messages?: { content: string; createdAt: string; senderId: string }[];
   updatedAt: string;
+  unreadCount?: number;
 }
 
 function adaptConversation(c: ApiConversation): ConversationSummary {
@@ -258,6 +260,7 @@ function adaptConversation(c: ApiConversation): ConversationSummary {
     helper: c.helper,
     lastMessage: c.messages && c.messages[0] ? c.messages[0] : null,
     updatedAt: c.updatedAt,
+    unreadCount: c.unreadCount ?? 0,
   };
 }
 
@@ -299,4 +302,13 @@ export async function sendMessage(conversationId: string, content: string): Prom
   });
   const data = await handleResponse<{ message: ChatMessage }>(res);
   return data.message;
+}
+
+/** Marca la conversación como leída hasta este momento (para el usuario actual). */
+export async function markConversationRead(conversationId: string): Promise<void> {
+  const res = await fetch(`${API_URL}/api/conversations/${conversationId}/read`, {
+    method: 'PATCH',
+    headers: { ...authHeaders() },
+  });
+  await handleResponse<{ ok: boolean }>(res);
 }
