@@ -6,20 +6,6 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 let socket: Socket | null = null;
 
-// Conversaciones a las que el cliente está actualmente suscripto.
-// Se usa para volver a unirse automáticamente después de una reconexión
-// (el servidor pierde la membresía de la room cuando el socket se desconecta).
-const joinedConversations = new Set<string>();
-
-function joinConversation(conversationId: string) {
-  if (!socket) return;
-  socket.emit('conversation:join', conversationId, (res: { ok: boolean; error?: string }) => {
-    if (!res.ok) {
-      console.error('No se pudo unir a la conversación:', res.error);
-    }
-  });
-}
-
 /**
  * Devuelve un socket conectado y autenticado con el JWT propio de la app
  * (el mismo que usás para las llamadas HTTP). Si el token cambia (por
@@ -34,15 +20,6 @@ function getSocket(): Socket {
       auth: { token },
       withCredentials: true,
     });
-
-    // Cada vez que el socket se conecta (incluidas las reconexiones tras
-    // un corte de red o un reinicio del servidor), el backend ya no tiene
-    // memoria de qué rooms tenía unidas este socket. Nos volvemos a unir
-    // a todas las conversaciones activas para no perder mensajes en vivo.
-    socket.on('connect', () => {
-      joinedConversations.forEach((id) => joinConversation(id));
-    });
-
     return socket;
   }
 
@@ -75,8 +52,11 @@ export function subscribeToMessages(
 ): () => void {
   const s = getSocket();
 
-  joinedConversations.add(conversationId);
-  joinConversation(conversationId);
+  s.emit('conversation:join', conversationId, (res: { ok: boolean; error?: string }) => {
+    if (!res.ok) {
+      console.error('No se pudo unir a la conversación:', res.error);
+    }
+  });
 
   const handler = (message: RealtimeMessage) => {
     if (message.conversationId === conversationId) {
@@ -89,6 +69,30 @@ export function subscribeToMessages(
   return () => {
     s.off('message:new', handler);
     s.emit('conversation:leave', conversationId);
-    joinedConversations.delete(conversationId);
+  };
+}
+
+export interface ConversationUpdate {
+  conversationId: string;
+  message: RealtimeMessage;
+}
+
+/**
+ * Escucha novedades de TODAS tus conversaciones (tengas o no cada una abierta),
+ * para poder actualizar la lista de conversaciones y el contador de "no leídos"
+ * apenas llega un mensaje, como en WhatsApp. El backend solo te avisa de
+ * conversaciones donde vos participás (ver room "user:" en socket.js).
+ * No hace falta unirse a nada: se conecta una sola vez por sesión.
+ */
+export function subscribeToConversationUpdates(
+  onUpdate: (update: ConversationUpdate) => void
+): () => void {
+  const s = getSocket();
+
+  const handler = (update: ConversationUpdate) => onUpdate(update);
+  s.on('conversation:updated', handler);
+
+  return () => {
+    s.off('conversation:updated', handler);
   };
 }
