@@ -1,4 +1,5 @@
-import { AnimalReport, statusLabel, statusColor, NavigateFn } from '../data/mock';
+import { AnimalReport, statusLabel, statusColor } from '../data/mock';
+import type { NavigateFn } from '../types/navigation';
 
 interface AnimalCardProps {
   animal: AnimalReport;
@@ -15,6 +16,10 @@ export default function AnimalCard({ animal, navigate }: AnimalCardProps) {
           src={animal.imageUrl}
           alt={`${animal.name} - ${animal.breed}`}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+          decoding="async"
+          width="400"
+          height="300"  
         />
       </div>
       <div className="p-5 flex flex-col flex-1">

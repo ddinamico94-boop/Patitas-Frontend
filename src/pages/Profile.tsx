@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { statusLabel, statusColor, NavigateFn, AnimalReport } from '../data/mock';
+import { statusLabel, statusColor, AnimalReport } from '../data/mock';
+import type { NavigateFn } from '../types/navigation';
 import { User, myReports } from '../lib/api';
 
 function IconClipboard() {

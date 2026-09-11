@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Page, NavigateFn } from '../data/mock';
+import type { Page, NavigateFn } from '../types/navigation';
 
 interface NavbarProps {
   page: Page;

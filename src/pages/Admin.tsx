@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { reports, statusLabel, statusColor, NavigateFn } from '../data/mock';
+import { reports, statusLabel, statusColor } from '../data/mock';
+import type { NavigateFn } from '../types/navigation';
 
 const sidebarItems = [
   { icon: '📊', label: 'Dashboard', id: 'dashboard' },

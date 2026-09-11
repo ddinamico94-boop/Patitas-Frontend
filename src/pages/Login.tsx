@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
-import { NavigateFn } from '../data/mock';
+import type { NavigateFn } from '../types/navigation';
 import { loginWithGoogle, saveSession } from '../lib/api';
 
 export default function Login({ navigate, onLogin }: { navigate: NavigateFn; onLogin: () => void }) {

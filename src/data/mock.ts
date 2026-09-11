@@ -1,7 +1,6 @@
 export type AnimalStatus = 'perdido' | 'encontrado' | 'en_calle' | 'ayudado' | 'rescatado';
 export type AnimalType = 'perro' | 'gato' | 'otro';
-export type Page = 'home' | 'reports' | 'map' | 'create' | 'detail' | 'login' | 'register' | 'profile' | 'admin' | 'chat';
-export type NavigateFn = (page: Page, id?: string) => void;
+
 
 export interface AnimalReport {
   id: string;

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { NavigateFn } from '../data/mock';
+import type { NavigateFn } from '../types/navigation';
 import {
   listMyConversations,
   getConversation,
@@ -29,6 +29,8 @@ export default function Chat({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const shouldAutoScrollRef = useRef(true);
 
   // Lista de conversaciones (sidebar)
   useEffect(() => {
@@ -125,8 +127,12 @@ export default function Chat({
   }, [conversationId]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  if (!shouldAutoScrollRef.current) return;
+
+  bottomRef.current?.scrollIntoView({
+    behavior: 'smooth',
+  });
+}, [messages]);
 
   const handleSend = async () => {
     if (!conversationId || !draft.trim() || sending) return;
@@ -221,30 +227,52 @@ export default function Chat({
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                {messages.length === 0 && (
-                  <p className="text-center text-xs text-warm-mid py-6">
-                    Todavía no hay mensajes. ¡Mandá el primero!
-                  </p>
-                )}
-                {messages.map((m) => {
-                  const mine = m.senderId === currentUserId;
-                  return (
-                    <div key={m.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-                      <div
-                        className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${
-                          mine
-                            ? 'bg-terra text-white rounded-br-sm'
-                            : 'bg-white border border-border text-dark rounded-bl-sm'
-                        }`}
-                      >
-                        {m.content}
-                      </div>
-                    </div>
-                  );
-                })}
-                <div ref={bottomRef} />
-              </div>
+              <div
+  ref={messagesContainerRef}
+  onScroll={() => {
+    const container = messagesContainerRef.current;
+
+    if (!container) return;
+
+    const distanceFromBottom =
+      container.scrollHeight -
+      container.scrollTop -
+      container.clientHeight;
+
+    shouldAutoScrollRef.current =
+      distanceFromBottom < 100;
+  }}
+  className="flex-1 overflow-y-auto p-4 space-y-2"
+>
+  {messages.length === 0 && (
+    <p className="text-center text-xs text-warm-mid py-6">
+      Todavía no hay mensajes. ¡Mandá el primero!
+    </p>
+  )}
+
+  {messages.map((m) => {
+    const mine = m.senderId === currentUserId;
+
+    return (
+      <div
+        key={m.id}
+        className={`flex ${mine ? 'justify-end' : 'justify-start'}`}
+      >
+        <div
+          className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${
+            mine
+              ? 'bg-terra text-white rounded-br-sm'
+              : 'bg-white border border-border text-dark rounded-bl-sm'
+          }`}
+        >
+          {m.content}
+        </div>
+      </div>
+    );
+  })}
+
+  <div ref={bottomRef} />
+</div>
 
               {error && <p className="text-xs text-red-600 px-4 pb-1">{error}</p>}
 
