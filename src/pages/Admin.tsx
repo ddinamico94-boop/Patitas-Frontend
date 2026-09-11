@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { reports, statusLabel, statusColor } from '../data/mock';
 import type { NavigateFn } from '../types/navigation';
+import SEO from '../components/SEO';
 
 const sidebarItems = [
   { icon: '📊', label: 'Dashboard', id: 'dashboard' },
@@ -46,6 +47,12 @@ export default function Admin({ navigate }: { navigate: NavigateFn }) {
 
   return (
     <div className="bg-cream min-h-full flex" style={{ height: 'calc(100vh - 64px)' }}>
+      <SEO
+  title="Administración | Patitas Tucumán"
+  description="Panel de administración de Patitas Tucumán."
+  path="/admin"
+  noIndex
+/>
       {/* Sidebar overlay (mobile) */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-dark/40 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />

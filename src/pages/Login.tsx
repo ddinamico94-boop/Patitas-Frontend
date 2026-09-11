@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import type { NavigateFn } from '../types/navigation';
 import { loginWithGoogle, saveSession } from '../lib/api';
+import SEO from '../components/SEO';
 
 export default function Login({ navigate, onLogin }: { navigate: NavigateFn; onLogin: () => void }) {
   const [email, setEmail] = useState('');
@@ -30,6 +31,12 @@ export default function Login({ navigate, onLogin }: { navigate: NavigateFn; onL
 
   return (
     <div className="min-h-screen bg-cream flex lg:flex-row flex-col">
+      <SEO
+  title="Iniciar sesión | Patitas Tucumán"
+  description="Iniciá sesión en Patitas Tucumán."
+  path="/login"
+  noIndex
+/>
       {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img

@@ -5,6 +5,7 @@ import { listReports, AnimalReport } from '../lib/api';
 import AnimalCard from '../components/AnimalCard';
 import Footer from '../components/Footer';
 import { PawIcon } from '../components/Navbar';
+import SEO from '../components/SEO'; 
 
 const steps = [
   {
@@ -102,6 +103,11 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
 
   return (
     <div className="bg-cream min-h-full" >
+      <SEO
+        title="Patitas Tucumán | Animales perdidos y encontrados"
+        description="Plataforma comunitaria para reportar y encontrar animales perdidos, encontrados, rescatados o en situación de calle en Tucumán."
+        path="/"
+      />
       {/* Hero */}
       <section className="bg-cream pt-2 pb-0 overflow-hidden sm:pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

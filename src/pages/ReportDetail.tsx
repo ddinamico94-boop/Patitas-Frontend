@@ -17,6 +17,7 @@ import {
 } from '../lib/api';
 
 import Footer from '../components/Footer';
+import SEO from '../components/SEO';
 
 function buildWhatsAppLink(
   phone: string,
@@ -229,6 +230,17 @@ export default function ReportDetail({
 
   return (
     <div className="bg-cream min-h-full">
+      <SEO
+  title={`${animal.name} - ${statusLabel[animal.status]} en ${animal.zone} | Patitas Tucumán`}
+  description={`${animal.name} fue reportado como ${statusLabel[
+    animal.status
+  ].toLowerCase()} en ${animal.zone}, Tucumán. Consultá el reporte y ayudá a difundirlo.`}
+  path={`/reporte/${animal.id}`}
+  image={
+    animal.imageUrl ||
+    'https://www.patitastucuman.com/og-image.png'
+  }
+/>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         {/* Volver */}

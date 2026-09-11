@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { AnimalStatus, AnimalType } from '../data/mock';
 import type { NavigateFn } from '../types/navigation';
 import { createReport, uploadImages, getSession } from '../lib/api';
+import SEO from '../components/SEO';
 
 const steps = [
   { n: 1, label: 'Tipo de reporte' },
@@ -169,6 +170,11 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
 
   return (
     <div className="bg-cream min-h-full">
+      <SEO
+        title="Crear reporte | Patitas Tucumán"
+        description="Publicá un reporte de un animal perdido, encontrado, rescatado o en situación de calle en Tucumán."
+        path="/crear-reporte"
+      />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
         {/* Header */}
         <div className="mb-8">
