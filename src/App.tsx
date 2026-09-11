@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from 'react';
 import type { Page } from './types/navigation';
 import Navbar from './components/Navbar';
+import { getSession, clearSession, type User } from './lib/api';
 
 const Home = lazy(() => import('./pages/Home'));
 const Reports = lazy(() => import('./pages/Reports'));
@@ -27,20 +28,34 @@ function PageLoader() {
 export default function App() {
   const [page, setPage] = useState<Page>('home');
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [loggedIn, setLoggedIn] = useState(false);
+  // El usuario arranca leyendo lo que haya guardado en localStorage (si ya inició sesión antes)
+  const [user, setUser] = useState<User | null>(() => getSession()?.user ?? null);
+
+  const loggedIn = !!user;
 
   const navigate = (p: Page, id?: string) => {
-  setPage(p);
+    setPage(p);
 
-  if (id !== undefined) {
-    setSelectedId(id);
-  }
+    if (id !== undefined) {
+      setSelectedId(id);
+    }
 
-  window.scrollTo({
-    top: 0,
-    behavior: 'instant',
-  });
-};
+    // Cada vez que navegamos, releemos la sesión. Esto cubre el caso de
+    // Register/Login, que guardan la sesión en localStorage y después navegan:
+    // así App se entera del usuario recién logueado sin lógica extra.
+    setUser(getSession()?.user ?? null);
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant',
+    });
+  };
+
+  const handleLogout = () => {
+    clearSession();
+    setUser(null);
+    navigate('home');
+  };
 
   const hideNav = page === 'login' || page === 'register';
 
@@ -80,7 +95,7 @@ export default function App() {
           <Login
             navigate={navigate}
             onLogin={() => {
-              setLoggedIn(true);
+              setUser(getSession()?.user ?? null);
               navigate('home');
             }}
           />
@@ -91,7 +106,11 @@ export default function App() {
         )}
 
         {page === 'profile' && (
-          <Profile navigate={navigate} />
+          <Profile
+            navigate={navigate}
+            user={user}
+            onLogout={handleLogout}
+          />
         )}
 
         {page === 'admin' && (
