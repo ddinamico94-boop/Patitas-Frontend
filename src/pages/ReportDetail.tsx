@@ -14,7 +14,6 @@ import type { NavigateFn } from '../types/navigation';
 import {
   getReport,
   listReports,
-  createConversation,
 } from '../lib/api';
 
 import Footer from '../components/Footer';
@@ -35,27 +34,17 @@ function buildWhatsAppLink(
 export default function ReportDetail({
   id,
   navigate,
-  currentUserId,
+  
 }: {
   id: string | null;
   navigate: NavigateFn;
-  currentUserId: string | null;
+ 
 }) {
   const queryClient = useQueryClient();
 
   const [imgIdx, setImgIdx] = useState(0);
   const [showContact, setShowContact] = useState(false);
-  const [startingChat, setStartingChat] = useState(false);
-  const [chatError, setChatError] = useState<string | null>(
-    null
-  );
 
-  /*
-   * DETALLE DEL REPORTE
-   *
-   * Si AnimalCard ya lo precargó,
-   * TanStack Query devuelve los datos inmediatamente.
-   */
   const {
     data: animal,
     isLoading: loading,
@@ -83,12 +72,6 @@ export default function ReportDetail({
     retry: 1,
   });
 
-  /*
-   * REPORTES RELACIONADOS
-   *
-   * Esta petición se hace APARTE.
-   * Ya no bloquea la carga del reporte principal.
-   */
   const {
     data: relatedData,
   } = useQuery({
@@ -120,20 +103,11 @@ export default function ReportDetail({
       ?.filter((r) => r.id !== animal?.id)
       .slice(0, 3) ?? [];
 
-  /*
-   * Al cambiar de reporte volvemos
-   * a mostrar la primera imagen.
-   */
   useEffect(() => {
     setImgIdx(0);
     setShowContact(false);
-    setChatError(null);
   }, [id]);
 
-  /*
-   * Precarga un reporte relacionado
-   * cuando el usuario pasa el mouse.
-   */
   const prefetchRelatedReport = (
     reportId: string
   ) => {
@@ -145,36 +119,6 @@ export default function ReportDetail({
 
       staleTime: 5 * 60 * 1000,
     });
-  };
-
-  const handleStartChat = async () => {
-    if (!animal) return;
-
-    if (!currentUserId) {
-      navigate('login');
-      return;
-    }
-
-    setChatError(null);
-    setStartingChat(true);
-
-    try {
-      const conversation =
-        await createConversation(animal.id);
-
-      navigate(
-        'chat',
-        conversation.id
-      );
-    } catch (err) {
-      setChatError(
-        err instanceof Error
-          ? err.message
-          : 'No se pudo iniciar el chat.'
-      );
-    } finally {
-      setStartingChat(false);
-    }
   };
 
   const handleShare = async () => {
@@ -224,9 +168,6 @@ export default function ReportDetail({
     }
   };
 
-  /*
-   * Si no hay ID.
-   */
   if (!id) {
     return (
       <div className="bg-cream min-h-full flex flex-col items-center justify-center py-24 gap-4">
@@ -246,13 +187,6 @@ export default function ReportDetail({
     );
   }
 
-  /*
-   * Sólo se muestra si realmente
-   * todavía estamos esperando el detalle.
-   *
-   * Si existe en caché esto prácticamente
-   * no debería aparecer.
-   */
   if (loading) {
     return (
       <div className="bg-cream min-h-full flex items-center justify-center py-24 text-warm-mid">
@@ -296,7 +230,8 @@ export default function ReportDetail({
   return (
     <div className="bg-cream min-h-full">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Breadcrumb */}
+
+        {/* Volver */}
         <button
           onClick={() =>
             navigate('reports')
@@ -319,8 +254,10 @@ export default function ReportDetail({
         </button>
 
         <div className="grid lg:grid-cols-5 gap-10">
+
           {/* IZQUIERDA */}
           <div className="lg:col-span-3 space-y-6">
+
             {/* Imagen principal */}
             <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-warm">
               {currentImage ? (
@@ -393,42 +330,32 @@ export default function ReportDetail({
                   {
                     label: 'Especie',
                     value: `${emoji} ${
-                      animal.type ===
-                      'perro'
+                      animal.type === 'perro'
                         ? 'Perro'
-                        : animal.type ===
-                            'gato'
+                        : animal.type === 'gato'
                           ? 'Gato'
                           : 'Otro'
                     }`,
                   },
                   {
                     label: 'Raza',
-                    value:
-                      animal.breed ||
-                      '—',
+                    value: animal.breed || '—',
                   },
                   {
                     label: 'Color',
-                    value:
-                      animal.color ||
-                      '—',
+                    value: animal.color || '—',
                   },
                   {
                     label: 'Tamaño',
-                    value:
-                      animal.size ||
-                      '—',
+                    value: animal.size || '—',
                   },
                   {
                     label: 'Zona',
-                    value:
-                      animal.zone,
+                    value: animal.zone,
                   },
                   {
                     label: 'Fecha',
-                    value:
-                      animal.date,
+                    value: animal.date,
                   },
                 ].map((item) => (
                   <div
@@ -447,21 +374,16 @@ export default function ReportDetail({
               </div>
             </div>
 
-            {/* Información */}
+            {/* Aviso */}
             <div className="bg-terra/8 border border-terra/20 rounded-2xl p-6">
               <h3 className="font-display text-xl font-semibold text-dark mb-2">
                 ¿Viste a este animal?
               </h3>
 
               <p className="text-dark/70 text-sm mb-4">
-                Si tenés información
-                sobre la ubicación o el
-                paradero de{' '}
-                {animal.name}, contactá
-                directamente a quien hizo
-                el reporte. Tu información
-                puede hacer una gran
-                diferencia.
+                Si tenés información sobre la ubicación o el paradero de{' '}
+                {animal.name}, contactá directamente a quien hizo el reporte.
+                Tu información puede hacer una gran diferencia.
               </p>
 
               <button
@@ -483,37 +405,34 @@ export default function ReportDetail({
                 Tengo información
               </button>
             </div>
+
           </div>
 
           {/* DERECHA */}
           <div className="lg:col-span-2 space-y-5">
-            {/* Estado */}
+
+            {/* Tarjeta principal */}
             <div className="bg-white rounded-2xl p-6 border border-border">
               <div className="flex items-start justify-between gap-3 mb-4">
+
                 <div>
                   <h1 className="font-display text-3xl font-semibold text-dark mb-1">
                     {animal.name}
                   </h1>
 
                   <p className="text-warm-mid text-sm">
-                    {animal.breed ||
-                      '—'}
+                    {animal.breed || '—'}
                   </p>
                 </div>
 
                 <span
                   className={`text-xs font-medium px-3 py-1.5 rounded-full shrink-0 ${
-                    statusColor[
-                      animal.status
-                    ]
+                    statusColor[animal.status]
                   }`}
                 >
-                  {
-                    statusLabel[
-                      animal.status
-                    ]
-                  }
+                  {statusLabel[animal.status]}
                 </span>
+
               </div>
 
               <div className="flex items-center gap-2 text-sm text-warm-mid mb-6">
@@ -534,47 +453,11 @@ export default function ReportDetail({
                   />
                 </svg>
 
-                {animal.zone} ·
-                Reportado el{' '}
-                {animal.date}
+                {animal.zone} · Reportado el {animal.date}
               </div>
 
+              {/* Ya no existe el botón de chat */}
               <div className="space-y-2.5">
-                {animal.reporterUserId &&
-                animal.reporterUserId !==
-                  currentUserId ? (
-                  <button
-                    onClick={
-                      handleStartChat
-                    }
-                    disabled={
-                      startingChat
-                    }
-                    className="w-full py-3 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors disabled:opacity-60"
-                  >
-                    {startingChat
-                      ? 'Abriendo chat...'
-                      : 'Chatear con quien reportó'}
-                  </button>
-                ) : animal.reporterUserId &&
-                  animal.reporterUserId ===
-                    currentUserId ? (
-                  <p className="text-xs text-warm-mid text-center py-2">
-                    Este es tu propio
-                    reporte.
-                  </p>
-                ) : (
-                  <p className="text-xs text-warm-mid text-center py-2">
-                    Este reporte no tiene
-                    chat disponible.
-                  </p>
-                )}
-
-                {chatError && (
-                  <p className="text-xs text-red-600 text-center">
-                    {chatError}
-                  </p>
-                )}
 
                 <button
                   onClick={() =>
@@ -600,21 +483,9 @@ export default function ReportDetail({
                     strokeWidth="2"
                     strokeLinecap="round"
                   >
-                    <circle
-                      cx="18"
-                      cy="5"
-                      r="3"
-                    />
-                    <circle
-                      cx="6"
-                      cy="12"
-                      r="3"
-                    />
-                    <circle
-                      cx="18"
-                      cy="19"
-                      r="3"
-                    />
+                    <circle cx="18" cy="5" r="3" />
+                    <circle cx="6" cy="12" r="3" />
+                    <circle cx="18" cy="19" r="3" />
                     <line
                       x1="8.59"
                       y1="13.51"
@@ -631,17 +502,20 @@ export default function ReportDetail({
 
                   Compartir reporte
                 </button>
+
               </div>
             </div>
 
             {/* Contacto */}
             {showContact && (
               <div className="bg-white rounded-2xl p-6 border border-terra/30">
+
                 <h3 className="font-display text-lg font-semibold text-dark mb-4">
                   Información de contacto
                 </h3>
 
                 <div className="space-y-3">
+
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-xl bg-terra/10 flex items-center justify-center shrink-0">
                       👤
@@ -653,8 +527,7 @@ export default function ReportDetail({
                       </p>
 
                       <p className="text-sm font-medium text-dark">
-                        {animal.contact ||
-                          '—'}
+                        {animal.contact || '—'}
                       </p>
                     </div>
                   </div>
@@ -670,8 +543,7 @@ export default function ReportDetail({
                       </p>
 
                       <p className="text-sm font-medium text-dark">
-                        {animal.phone ||
-                          '—'}
+                        {animal.phone || '—'}
                       </p>
                     </div>
                   </div>
@@ -687,17 +559,18 @@ export default function ReportDetail({
                       </p>
 
                       <p className="text-sm font-medium text-dark">
-                        {animal.email ||
-                          '—'}
+                        {animal.email || '—'}
                       </p>
                     </div>
                   </div>
+
                 </div>
               </div>
             )}
 
             {/* Mapa */}
             <div className="bg-white rounded-2xl p-5 border border-border">
+
               <h3 className="font-display text-lg font-semibold text-dark mb-3">
                 Ubicación aproximada
               </h3>
@@ -705,6 +578,7 @@ export default function ReportDetail({
               {animal.lat !== 0 ||
               animal.lng !== 0 ? (
                 <div className="rounded-xl overflow-hidden border border-border">
+
                   <iframe
                     title="Ubicación del reporte"
                     width="100%"
@@ -729,14 +603,13 @@ export default function ReportDetail({
                   <p className="text-xs text-warm-mid px-3 py-2 bg-warm">
                     {animal.zone}
                   </p>
+
                 </div>
               ) : (
                 <div className="h-40 rounded-xl border-2 border-dashed border-border flex items-center justify-center text-center p-4">
                   <p className="text-sm text-warm-mid">
-                    Este reporte no tiene
-                    una ubicación exacta
-                    guardada. Zona:{' '}
-                    {animal.zone}
+                    Este reporte no tiene una ubicación exacta guardada.
+                    Zona: {animal.zone}
                   </p>
                 </div>
               )}
@@ -749,18 +622,21 @@ export default function ReportDetail({
               >
                 Ver en mapa completo →
               </button>
+
             </div>
           </div>
         </div>
 
-        {/* REPORTES RELACIONADOS */}
+        {/* Reportes relacionados */}
         {related.length > 0 && (
           <div className="mt-16">
+
             <h2 className="font-display text-2xl font-semibold text-dark mb-6">
               Reportes relacionados
             </h2>
 
             <div className="grid sm:grid-cols-3 gap-5">
+
               {related.map((r) => (
                 <button
                   key={r.id}
@@ -792,12 +668,12 @@ export default function ReportDetail({
                   }}
                   className="bg-white rounded-2xl overflow-hidden border border-border hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 text-left group"
                 >
+
                   <div className="aspect-[16/9] overflow-hidden bg-warm">
+
                     {r.imageUrl ? (
                       <img
-                        src={
-                          r.imageUrl
-                        }
+                        src={r.imageUrl}
                         alt={r.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
@@ -810,10 +686,13 @@ export default function ReportDetail({
                         🐾
                       </div>
                     )}
+
                   </div>
 
                   <div className="p-4">
+
                     <div className="flex items-center justify-between gap-2 mb-1">
+
                       <span className="font-display font-semibold text-dark">
                         {r.name}
                       </span>
@@ -831,23 +710,24 @@ export default function ReportDetail({
                           ]
                         }
                       </span>
+
                     </div>
 
                     <p className="text-xs text-warm-mid">
-                      {r.zone} ·{' '}
-                      {r.date}
+                      {r.zone} · {r.date}
                     </p>
+
                   </div>
                 </button>
               ))}
+
             </div>
           </div>
         )}
+
       </div>
 
-      <Footer
-        navigate={navigate}
-      />
+      <Footer navigate={navigate} />
     </div>
   );
 }
