@@ -34,6 +34,45 @@ export async function loginWithGoogle(credential: string): Promise<AuthResponse>
   return res.json();
 }
 
+// ==== Registro e inicio de sesión con email y contraseña ====
+export interface RegisterInput {
+  name: string;
+  surname: string;
+  email: string;
+  phone: string;
+  password: string;
+}
+
+export async function registerWithEmail(input: RegisterInput): Promise<AuthResponse> {
+  const res = await fetch(`${API_URL}/api/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'No se pudo crear la cuenta.');
+  }
+
+  return res.json();
+}
+
+export async function loginWithEmail(email: string, password: string): Promise<AuthResponse> {
+  const res = await fetch(`${API_URL}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Email o contraseña incorrectos.');
+  }
+
+  return res.json();
+}
+
 export function saveSession(auth: AuthResponse) {
   localStorage.setItem('patitas_token', auth.token);
   localStorage.setItem('patitas_user', JSON.stringify(auth.user));

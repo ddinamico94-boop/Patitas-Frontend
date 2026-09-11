@@ -1,10 +1,47 @@
 import { useState } from 'react';
 import type { NavigateFn } from '../types/navigation';
 import { PawIcon } from '../components/Navbar';
+import { registerWithEmail, saveSession } from '../lib/api';
 
 export default function Register({ navigate }: { navigate: NavigateFn }) {
   const [form, setForm] = useState({ name: '', surname: '', email: '', phone: '', password: '', confirm: '', terms: false });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const set = (k: keyof typeof form, v: string | boolean) => setForm({ ...form, [k]: v });
+
+  async function handleSubmit() {
+    setError(null);
+
+    if (!form.name || !form.surname || !form.email || !form.password) {
+      setError('Completá todos los campos obligatorios.');
+      return;
+    }
+    if (form.password !== form.confirm) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
+    if (form.password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const auth = await registerWithEmail({
+        name: form.name,
+        surname: form.surname,
+        email: form.email,
+        phone: form.phone,
+        password: form.password,
+      });
+      saveSession(auth);
+      navigate('profile');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo crear la cuenta.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="bg-cream min-h-full flex items-center justify-center p-6 sm:p-10 py-12">
@@ -58,15 +95,21 @@ export default function Register({ navigate }: { navigate: NavigateFn }) {
               <button className="text-terra hover:underline font-medium">política de privacidad</button>
             </span>
           </label>
+
+          {error && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5">
+              {error}
+            </p>
+          )}
         </div>
 
         <div className="mt-5">
           <button
-            onClick={() => navigate('login')}
-            disabled={!form.terms}
+            onClick={handleSubmit}
+            disabled={!form.terms || loading}
             className="w-full py-3.5 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Crear cuenta
+            {loading ? 'Creando cuenta...' : 'Crear cuenta'}
           </button>
           <p className="text-center text-sm text-warm-mid mt-5">
             ¿Ya tenés cuenta?{' '}
