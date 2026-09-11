@@ -3,40 +3,6 @@ import { statusLabel, statusColor, AnimalReport } from '../data/mock';
 import type { NavigateFn } from '../types/navigation';
 import { User, myReports } from '../lib/api';
 
-function IconClipboard() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="6" y="4" width="12" height="16" rx="2" />
-      <path d="M9 4V3a1 1 0 011-1h4a1 1 0 011 1v1" />
-      <line x1="9" y1="10" x2="15" y2="10" />
-      <line x1="9" y1="14" x2="15" y2="14" />
-    </svg>
-  );
-}
-
-function IconActive() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M8 12l2.5 2.5L16 9" />
-    </svg>
-  );
-}
-
-function IconHeart() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 20s-7-4.35-9.5-9C1 7.5 3 4 6.5 4c2 0 3.3 1 4.2 2.2C11.6 5 12.9 4 14.9 4 18.4 4 20.4 7.5 19 11 16.5 15.65 12 20 12 20z" />
-    </svg>
-  );
-}
-
-const profileStats = [
-  { label: 'Mis reportes', value: '4', Icon: IconClipboard },
-  { label: 'Reportes activos', value: '2', Icon: IconActive },
-  { label: 'Animales ayudados', value: '1', Icon: IconHeart },
-];
-
 export default function Profile({
   navigate,
   user,
@@ -93,9 +59,6 @@ export default function Profile({
               <p className="text-warm-mid">{displayEmail}</p>
             </div>
             <div className="sm:ml-auto flex gap-3">
-              <button className="px-4 py-2.5 border border-border rounded-xl text-sm font-medium text-dark hover:border-terra hover:text-terra transition-colors">
-                Editar perfil
-              </button>
               <button
                 onClick={onLogout}
                 className="px-4 py-2.5 text-sm font-medium text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition-colors"
@@ -103,18 +66,6 @@ export default function Profile({
                 Cerrar sesión
               </button>
             </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4 mt-8">
-            {profileStats.map((s) => (
-              <div key={s.label} className="bg-warm rounded-2xl p-5 text-center">
-                <div className="flex justify-center mb-2 text-terra">
-                  <s.Icon />
-                </div>
-                <div className="font-display text-3xl font-bold text-dark mb-0.5">{s.value}</div>
-                <div className="text-xs text-warm-mid">{s.label}</div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
