@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import SEO from '../components/SEO';
 
 import type {
   AnimalReport,
@@ -138,6 +139,11 @@ export default function Reports({
 
   return (
     <div className="bg-cream min-h-full">
+      <SEO
+        title="Reportes de animales perdidos y encontrados | Patitas Tucumán"
+        description="Consultá reportes de perros y gatos perdidos, encontrados, rescatados o en situación de calle en Tucumán."
+        path="/reportes"
+      />
       {/* Header */}
       <div className="bg-white border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

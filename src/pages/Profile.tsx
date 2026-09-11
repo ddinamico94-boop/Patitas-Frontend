@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { statusLabel, statusColor, AnimalReport } from '../data/mock';
 import type { NavigateFn } from '../types/navigation';
 import { User, myReports } from '../lib/api';
+import SEO from '../components/SEO';
 
 export default function Profile({
   navigate,
@@ -38,6 +39,12 @@ export default function Profile({
 
   return (
     <div className="bg-cream min-h-full">
+      <SEO
+  title="Mi perfil | Patitas Tucumán"
+  description="Perfil de usuario de Patitas Tucumán."
+  path="/perfil"
+  noIndex
+/>
       {/* Header */}
       <div className="bg-white border-b border-border">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

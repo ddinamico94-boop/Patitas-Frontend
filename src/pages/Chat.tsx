@@ -10,6 +10,7 @@ import {
   ChatMessage,
 } from '../lib/api';
 import { subscribeToMessages, subscribeToConversationUpdates } from '../lib/realtime';
+import SEO from '../components/SEO';
 
 export default function Chat({
   navigate,
@@ -151,6 +152,12 @@ export default function Chat({
 
   return (
     <div className="bg-cream" style={{ height: 'calc(100vh - 64px)' }}>
+      <SEO
+  title="Chat | Patitas Tucumán"
+  description="Conversación privada en Patitas Tucumán."
+  path={`/chat/${conversationId}`}
+  noIndex
+/>
       <div className="h-full flex flex-col lg:flex-row">
         {/* Lista de conversaciones: apilada arriba en mobile, al costado en desktop */}
         <div className="w-full lg:w-80 max-h-[35vh] lg:max-h-none bg-white border-b lg:border-b-0 lg:border-r border-border flex flex-col shrink-0">

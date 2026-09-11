@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { NavigateFn } from '../types/navigation';
 import { PawIcon } from '../components/Navbar';
 import { registerWithEmail, saveSession } from '../lib/api';
+import SEO from '../components/SEO';
 
 export default function Register({ navigate }: { navigate: NavigateFn }) {
   const [form, setForm] = useState({ name: '', surname: '', email: '', phone: '', password: '', confirm: '', terms: false });
@@ -45,6 +46,12 @@ export default function Register({ navigate }: { navigate: NavigateFn }) {
 
   return (
     <div className="bg-cream min-h-full flex items-center justify-center p-6 sm:p-10 py-12">
+      <SEO
+  title="Crear cuenta | Patitas Tucumán"
+  description="Creá tu cuenta en Patitas Tucumán."
+  path="/registro"
+  noIndex
+/>
       <div className="w-full max-w-md">
         <button onClick={() => navigate('home')} className="flex items-center gap-2.5 text-terra mb-8">
           <PawIcon size={22} />

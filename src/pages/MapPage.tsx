@@ -23,6 +23,8 @@ import {
   AnimalReport,
 } from '../lib/api';
 
+import SEO from '../components/SEO';
+
 const filterOptions: {
   label: string;
   value: AnimalStatus | 'todos';
@@ -191,6 +193,11 @@ export default function MapPage({
         height: 'calc(100vh - 64px)',
       }}
     >
+      <SEO
+        title="Mapa de animales perdidos y encontrados | Patitas Tucumán"
+        description="Explorá en el mapa los reportes de animales perdidos, encontrados y rescatados en Tucumán."
+        path="/mapa"
+      />
       <div className="h-full flex flex-col lg:flex-row">
         {/* SIDEBAR */}
         <div className="w-full lg:w-80 max-h-[45vh] lg:max-h-none bg-white border-b lg:border-b-0 lg:border-r border-border flex flex-col shrink-0">
