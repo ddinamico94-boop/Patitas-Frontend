@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { AnimalStatus, statusLabel, NavigateFn } from '../data/mock';
+import { reports, AnimalStatus, statusLabel } from '../data/mock';
+import type { NavigateFn } from '../types/navigation';
 import { listReports, AnimalReport } from '../lib/api';
 import AnimalCard from '../components/AnimalCard';
 import Footer from '../components/Footer';

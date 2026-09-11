@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { NavigateFn, AnimalStatus, AnimalType } from '../data/mock';
+import { AnimalStatus, AnimalType } from '../data/mock';
+import type { NavigateFn } from '../types/navigation';
 import { createReport, uploadImages, getSession } from '../lib/api';
 
 const steps = [

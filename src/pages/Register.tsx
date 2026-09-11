@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavigateFn } from '../data/mock';
+import type { NavigateFn } from '../types/navigation';
 import { PawIcon } from '../components/Navbar';
 
 export default function Register({ navigate }: { navigate: NavigateFn }) {

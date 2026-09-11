@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { statusLabel, statusColor, NavigateFn } from '../data/mock';
+import { reports, statusLabel, statusColor } from '../data/mock';
+import type { NavigateFn } from '../types/navigation';
 import { getReport, listReports, createConversation, AnimalReport } from '../lib/api';
 import Footer from '../components/Footer';
 

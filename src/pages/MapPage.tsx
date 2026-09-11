@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { statusLabel, statusColor, statusDot, AnimalStatus, NavigateFn } from '../data/mock';
+import { statusLabel, statusColor, statusDot, AnimalStatus} from '../data/mock';
+import type { NavigateFn } from '../types/navigation';
 import { listReports, AnimalReport } from '../lib/api';
 
 const filterOptions: { label: string; value: AnimalStatus | 'todos' }[] = [

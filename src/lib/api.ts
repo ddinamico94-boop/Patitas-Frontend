@@ -42,8 +42,26 @@ export function saveSession(auth: AuthResponse) {
 export function getSession(): AuthResponse | null {
   const token = localStorage.getItem('patitas_token');
   const userRaw = localStorage.getItem('patitas_user');
-  if (!token || !userRaw) return null;
-  return { token, user: JSON.parse(userRaw) };
+
+  if (!token || !userRaw) {
+    return null;
+  }
+
+  try {
+    const user = JSON.parse(userRaw) as User;
+
+    return {
+      token,
+      user,
+    };
+  } catch (error) {
+    console.error('Error al recuperar la sesión:', error);
+
+    localStorage.removeItem('patitas_token');
+    localStorage.removeItem('patitas_user');
+
+    return null;
+  }
 }
 
 export function clearSession() {

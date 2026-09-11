@@ -1,4 +1,5 @@
-import { NavigateFn } from '../data/mock';
+
+import type { NavigateFn } from '../types/navigation';
 import { PawIcon } from './Navbar';
 
 export default function Footer({ navigate }: { navigate: NavigateFn }) {
