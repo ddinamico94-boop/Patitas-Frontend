@@ -10,10 +10,23 @@ const DONATION_INFO = {
   alias: 'PEPAQUE.SITIO.LUTERO',
 };
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({
+  label,
+  value,
+  logo,
+}: {
+  label: string;
+  value: string;
+  logo?: string;
+}) {
   return (
     <div className="py-2 border-b border-gray-100 last:border-0">
-      <p className="text-xs text-gray-500">{label}</p>
+      <div className="flex items-center gap-1.5">
+        <p className="text-xs text-gray-500">{label}</p>
+        {logo && (
+          <img src={logo} alt="" className="h-3.5 w-auto" />
+        )}
+      </div>
       <p className="text-sm font-medium text-dark truncate">{value}</p>
     </div>
   );
@@ -76,7 +89,11 @@ export default function DonationWidget() {
           </p>
 
           <div>
-            <InfoRow label="Banco" value={DONATION_INFO.banco} />
+            <InfoRow
+              label="Banco"
+              value={DONATION_INFO.banco}
+              logo="/bbva-logo.png"
+            />
             <InfoRow label="Titular" value={DONATION_INFO.titular} />
             <CopyRow label="CBU" value={DONATION_INFO.cbu} />
             <CopyRow label="Alias" value={DONATION_INFO.alias} />
