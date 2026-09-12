@@ -7,6 +7,7 @@ import {
 
 import type { Page } from './types/navigation';
 import Navbar from './components/Navbar';
+import DonationWidget from './components/DonationWidget';
 
 import {
   getSession,
@@ -411,6 +412,8 @@ export default function App() {
             />
           )}
       </Suspense>
+
+      <DonationWidget />
     </div>
   );
 }
