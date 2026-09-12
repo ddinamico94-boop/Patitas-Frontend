@@ -6,9 +6,18 @@ import { useState } from 'react';
 const DONATION_INFO = {
   banco: 'BBVA',
   titular: 'Fabrizzio Benjamin Argañaraz',
-  cbu:  '0170005340000037414469',
-  alias:  "PEPAQUE.SITIO.LUTERO"
+  cbu: '0170005340000037414469',
+  alias: 'PEPAQUE.SITIO.LUTERO',
 };
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="py-2 border-b border-gray-100 last:border-0">
+      <p className="text-xs text-gray-500">{label}</p>
+      <p className="text-sm font-medium text-dark truncate">{value}</p>
+    </div>
+  );
+}
 
 function CopyRow({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
@@ -67,8 +76,8 @@ export default function DonationWidget() {
           </p>
 
           <div>
-            <CopyRow label="Banco" value={DONATION_INFO.banco} />
-            <CopyRow label="Titular" value={DONATION_INFO.titular} />
+            <InfoRow label="Banco" value={DONATION_INFO.banco} />
+            <InfoRow label="Titular" value={DONATION_INFO.titular} />
             <CopyRow label="CBU" value={DONATION_INFO.cbu} />
             <CopyRow label="Alias" value={DONATION_INFO.alias} />
           </div>
