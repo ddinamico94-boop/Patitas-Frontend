@@ -7,7 +7,7 @@ const DONATION_INFO = {
   banco: 'BBVA',
   titular: 'Fabrizzio Benjamin Argañaraz',
   cbu: '0170005340000037414469',
-  alias: 'PEPAQUE.SITIO.LUTERO',
+  alias: 'patitas.tucuman',
 };
 
 function InfoRow({
