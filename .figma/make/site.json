@@ -1,7 +1,7 @@
 {
-  "description": "Enhances user productivity by streamlining tasks with an intuitive interface designed for efficient workflow management and easy collaboration.",
+  "description": "Patitas Tucumán es una plataforma comunitaria para reportar y encontrar animales perdidos, encontrados, rescatados o en situación de calle en Tucumán.",
   "robots": {
-    "index": false
+    "index": true
   },
   "accessibility": {
     "addBypassLinks": false,
