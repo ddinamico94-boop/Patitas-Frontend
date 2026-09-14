@@ -5,6 +5,10 @@
       "destination": "https://patitas-backend-tjx6.onrender.com/api/reports/sitemap.xml"
     },
     {
+      "source": "/compartir/reporte/:id",
+      "destination": "https://patitas-backend-tjx6.onrender.com/api/reports/share/:id"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
