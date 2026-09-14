@@ -123,51 +123,50 @@ export default function ReportDetail({
   };
 
   const handleShare = async () => {
-    if (!animal) return;
+  if (!animal) return;
 
-    const shareData = {
-      title: `${animal.name} · ${
-        statusLabel[animal.status]
-      }`,
+  const shareUrl =
+    `https://www.patitastucuman.com/compartir/reporte/${animal.id}`;
 
-      text: `${animal.name} · ${
-        statusLabel[animal.status]
-      } en ${
-        animal.zone
-      }. Ayudemos a que vuelva a casa.`,
+  const shareData = {
+    title: `${animal.name} · ${statusLabel[animal.status]}`,
 
-      url: window.location.href,
-    };
+    text: `${animal.name} · ${
+      statusLabel[animal.status]
+    } en ${
+      animal.zone
+    }. Ayudemos a difundir este reporte.`,
 
-    if (navigator.share) {
-      try {
-        await navigator.share(
-          shareData
-        );
-      } catch {
-        // El usuario cerró el menú.
-      }
-
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(
-        shareData.url
-      );
-
-      alert(
-        'Link copiado. Pegalo donde quieras compartirlo.'
-      );
-    } catch {
-      window.open(
-        `https://wa.me/?text=${encodeURIComponent(
-          `${shareData.text} ${shareData.url}`
-        )}`,
-        '_blank'
-      );
-    }
+    url: shareUrl,
   };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+    } catch {
+      // El usuario cerró el menú de compartir.
+    }
+
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(
+      shareData.url
+    );
+
+    alert(
+      'Link copiado. Pegalo donde quieras compartirlo.'
+    );
+  } catch {
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(
+        `${shareData.text} ${shareData.url}`
+      )}`,
+      '_blank'
+    );
+  }
+};
 
   if (!id) {
     return (
