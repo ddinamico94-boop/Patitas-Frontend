@@ -240,6 +240,41 @@ export default function ReportDetail({
     animal.imageUrl ||
     'https://www.patitastucuman.com/og-image.png'
   }
+  structuredData={{
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: `${animal.name} - ${statusLabel[animal.status]} en ${animal.zone}`,
+    description:
+      animal.description ||
+      `${animal.name} fue reportado como ${statusLabel[
+        animal.status
+      ].toLowerCase()} en ${animal.zone}, Tucumán.`,
+    image: animal.imageUrl
+      ? [animal.imageUrl]
+      : ['https://www.patitastucuman.com/og-image.png'],
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://www.patitastucuman.com/reporte/${animal.id}`,
+    },
+    url: `https://www.patitastucuman.com/reporte/${animal.id}`,
+    publisher: {
+      '@type': 'Organization',
+      name: 'Patitas Tucumán',
+      url: 'https://www.patitastucuman.com',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://www.patitastucuman.com/og-image.png',
+      },
+    },
+    about: {
+      '@type': 'Thing',
+      name: `${animal.type} ${statusLabel[animal.status]}`,
+    },
+    contentLocation: {
+      '@type': 'Place',
+      name: `${animal.zone}, Tucumán, Argentina`,
+    },
+  }}
 />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
