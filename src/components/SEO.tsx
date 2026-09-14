@@ -6,6 +6,7 @@ interface SEOProps {
   path?: string;
   image?: string;
   noIndex?: boolean;
+  structuredData?: Record<string, unknown>;
 }
 
 export default function SEO({
@@ -14,6 +15,7 @@ export default function SEO({
   path = '/',
   image = 'https://www.patitastucuman.com/og-image.png',
   noIndex = false,
+  structuredData,
 }: SEOProps) {
   useEffect(() => {
     document.title = title;
@@ -143,12 +145,49 @@ export default function SEO({
     }
 
     canonical.href = url;
+
+    const existingJsonLd =
+      document.querySelector<HTMLScriptElement>(
+        'script[data-patitas-jsonld="true"]'
+      );
+
+    if (existingJsonLd) {
+      existingJsonLd.remove();
+    }
+
+    if (structuredData) {
+      const script =
+        document.createElement('script');
+
+      script.type = 'application/ld+json';
+      script.setAttribute(
+        'data-patitas-jsonld',
+        'true'
+      );
+
+      script.textContent =
+        JSON.stringify(structuredData);
+
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      const jsonLd =
+        document.querySelector<HTMLScriptElement>(
+          'script[data-patitas-jsonld="true"]'
+        );
+
+      if (jsonLd) {
+        jsonLd.remove();
+      }
+    };
   }, [
     title,
     description,
     path,
     image,
     noIndex,
+    structuredData,
   ]);
 
   return null;
