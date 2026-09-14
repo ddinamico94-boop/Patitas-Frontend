@@ -257,6 +257,14 @@ export default function ReportDetail({
       '@id': `https://www.patitastucuman.com/reporte/${animal.id}`,
     },
     url: `https://www.patitastucuman.com/reporte/${animal.id}`,
+    
+    author: {
+  '@type': 'Organization',
+  name: 'Patitas Tucumán',
+  url: 'https://www.patitastucuman.com',
+},
+    
+    
     publisher: {
       '@type': 'Organization',
       name: 'Patitas Tucumán',
