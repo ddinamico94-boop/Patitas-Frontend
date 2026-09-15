@@ -71,7 +71,7 @@ export default function DonationWidget() {
         <div className="mb-3 w-72 rounded-2xl bg-white shadow-xl border border-gray-100 p-4 animate-in fade-in slide-in-from-bottom-2">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-semibold text-dark">
-              🐾 Ayudá a mantener el sitio
+              🐾 ¿Te gusta Patitas Tucumán?
             </h3>
 
             <button
@@ -84,8 +84,8 @@ export default function DonationWidget() {
           </div>
 
           <p className="text-xs text-gray-500 mb-3">
-            Patitas Tucumán se mantiene con donaciones. Si podés colaborar,
-            estos son los datos:
+            
+Si el proyecto te parece útil y querés darle una mano, podés colaborar de forma voluntaria. Todo apoyo es bienvenido.
           </p>
 
           <div>
@@ -105,7 +105,7 @@ export default function DonationWidget() {
         onClick={() => setOpen((v) => !v)}
         className="rounded-full bg-dark text-cream shadow-lg px-4 py-3 text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
       >
-        {open ? 'Cerrar' : '❤️ Donar'}
+        {open ? 'Cerrar' : '💛  Donar'}
       </button>
     </div>
   );
