@@ -105,7 +105,7 @@ Si el proyecto te parece útil y querés darle una mano, podés colaborar de for
         onClick={() => setOpen((v) => !v)}
         className="rounded-full bg-dark text-cream shadow-lg px-4 py-3 text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2"
       >
-        {open ? 'Cerrar' : '💛  Donar'}
+        {open ? 'Cerrar' : '🧡 Donar'}
       </button>
     </div>
   );

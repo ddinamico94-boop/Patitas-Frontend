@@ -318,6 +318,9 @@ export default function App() {
     page === 'login' ||
     page === 'register';
 
+  const showDonationWidget =
+    page !== 'map';
+
   return (
     <div className="min-h-full font-sans text-dark bg-cream">
       {!hideNav && (
@@ -413,7 +416,9 @@ export default function App() {
           )}
       </Suspense>
 
-      <DonationWidget />
+      {showDonationWidget && (
+        <DonationWidget />
+      )}
     </div>
   );
 }
