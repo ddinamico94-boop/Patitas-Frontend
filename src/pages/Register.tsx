@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import type { NavigateFn } from '../types/navigation';
-import { PawIcon } from '../components/Navbar';
+import  icon  from '../imagenes/favicon.svg';
 import { registerWithEmail, saveSession } from '../lib/api';
 import SEO from '../components/SEO';
 
 export default function Register({ navigate }: { navigate: NavigateFn }) {
-  const [form, setForm] = useState({ name: '', surname: '', email: '', phone: '', password: '', confirm: '', terms: false });
+  const [form, setForm] = useState({ name: '', surname: '', email: '', phone: '', password: '', confirm: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const set = (k: keyof typeof form, v: string | boolean) => setForm({ ...form, [k]: v });
+  const set = (k: keyof typeof form, v: string) => setForm({ ...form, [k]: v });
 
   async function handleSubmit() {
     setError(null);
@@ -54,7 +54,8 @@ export default function Register({ navigate }: { navigate: NavigateFn }) {
 />
       <div className="w-full max-w-md">
         <button onClick={() => navigate('home')} className="flex items-center gap-2.5 text-terra mb-8">
-          <PawIcon size={22} />
+        
+          <img src={icon} alt="Patitas Tucumán" className="w-6 h-6" />
           <span className="font-display font-semibold text-lg text-dark">Patitas <span className="text-terra">Tucumán</span></span>
         </button>
 
@@ -100,7 +101,7 @@ export default function Register({ navigate }: { navigate: NavigateFn }) {
         <div className="mt-5">
           <button
             onClick={handleSubmit}
-            disabled={!form.terms || loading}
+            disabled={loading}
             className="w-full py-3.5 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {loading ? 'Creando cuenta...' : 'Crear cuenta'}

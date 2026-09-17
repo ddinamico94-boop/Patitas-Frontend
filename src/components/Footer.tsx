@@ -1,6 +1,7 @@
 
 import type { NavigateFn } from '../types/navigation';
-import { PawIcon } from './Navbar';
+
+import icon from '../imagenes/favicon.svg';
 
 export default function Footer({ navigate }: { navigate: NavigateFn }) {
   return (
@@ -9,7 +10,7 @@ export default function Footer({ navigate }: { navigate: NavigateFn }) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="md:col-span-2">
             <button onClick={() => navigate('home')} className="flex items-center gap-2.5 text-white mb-4">
-              <PawIcon size={26} />
+              <img src={icon} alt="Patitas Tucumán" className="w-8 h-8" />
               <span className="font-display font-semibold text-xl">Patitas Tucumán</span>
             </button>
             <p className="text-sm leading-relaxed max-w-xs">
