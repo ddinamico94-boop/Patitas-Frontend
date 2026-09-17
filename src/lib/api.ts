@@ -369,3 +369,96 @@ export async function markConversationRead(conversationId: string): Promise<void
   });
   await handleResponse<{ ok: boolean }>(res);
 }
+
+
+// ======================================================
+// RECUPERACIÓN DE CONTRASEÑA
+// ======================================================
+
+export async function forgotPassword(
+  email: string
+): Promise<{ message: string }> {
+  const res = await fetch(
+    `${API_URL}/api/auth/forgot-password`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    }
+  );
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(
+      data.error ||
+        'No pudimos solicitar la recuperación de contraseña.'
+    );
+  }
+
+  return data;
+}
+
+export async function verifyResetCode(
+  email: string,
+  code: string
+): Promise<{ message: string }> {
+  const res = await fetch(
+    `${API_URL}/api/auth/verify-reset-code`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        code,
+      }),
+    }
+  );
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(
+      data.error ||
+        'El código es inválido o expiró.'
+    );
+  }
+
+  return data;
+}
+
+export async function resetPassword(
+  email: string,
+  code: string,
+  password: string
+): Promise<{ message: string }> {
+  const res = await fetch(
+    `${API_URL}/api/auth/reset-password`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        code,
+        password,
+      }),
+    }
+  );
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(
+      data.error ||
+        'No pudimos cambiar la contraseña.'
+    );
+  }
+
+  return data;
+}
