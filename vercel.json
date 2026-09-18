@@ -1,6 +1,4 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
   "rewrites": [
     {
       "source": "/sitemap.xml",
@@ -9,10 +7,6 @@
     {
       "source": "/compartir/reporte/:id",
       "destination": "https://patitas-backend-tjx6.onrender.com/api/reports/share/:id"
-    },
-    {
-      "source": "/((?!assets/|.*\\.[^/]+$).*)",
-      "destination": "/index.html"
     }
   ]
 }
