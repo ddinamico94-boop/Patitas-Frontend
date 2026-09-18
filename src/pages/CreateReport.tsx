@@ -43,6 +43,7 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
   const [rawFiles, setRawFiles] = useState<File[]>([]); // archivos reales para subir
   const [color, setColor] = useState('');
   const [size, setSize] = useState('');
+  const [marks, setMarks] = useState('');
   const [notes, setNotes] = useState('');
   const [contactName, setContactName] = useState('');
   const [phone, setPhone] = useState('');
@@ -101,9 +102,39 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
 
   const progress = ((step - 1) / (steps.length - 1)) * 100;
 
+  // Todos los pasos son obligatorios: el botón "Continuar" queda
+  // deshabilitado hasta que se complete cada campo requerido del paso actual.
   const canNext = () => {
-    if (step === 1) return reportType !== '' && animalKind !== '';
-    if (step === 2) return address !== '' || zone !== '' || coords !== null;
+    if (step === 1) {
+      return (
+        reportType !== '' &&
+        animalKind !== '' &&
+        animalName.trim() !== '' &&
+        date !== ''
+      );
+    }
+    if (step === 2) {
+      // Dirección y zona son ambas obligatorias.
+      return address.trim() !== '' && zone !== '';
+    }
+    if (step === 3) {
+      return images.length > 0;
+    }
+    if (step === 4) {
+      return (
+        color.trim() !== '' &&
+        size !== '' &&
+        marks.trim() !== '' &&
+        notes.trim() !== ''
+      );
+    }
+    if (step === 5) {
+      return (
+        contactName.trim() !== '' &&
+        phone.trim() !== '' &&
+        email.trim() !== ''
+      );
+    }
     return true;
   };
 
@@ -126,7 +157,7 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
         status: reportType as AnimalStatus,
         zone: zone || address || 'Sin especificar',
         address: address || undefined,
-        description: notes || undefined,
+        description: [marks, notes].filter(Boolean).join(' — ') || undefined,
         color: color || undefined,
         size: size || undefined,
         contactName,
@@ -244,7 +275,7 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
                 ))}
               </div>
 
-              <h3 className="font-semibold text-dark mb-3">Especie</h3>
+              <h3 className="font-semibold text-dark mb-3">Especie *</h3>
               <div className="flex gap-3 mb-6">
                 {animalKinds.map((k) => (
                   <button
@@ -262,11 +293,11 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-dark mb-1.5 block">Nombre (si lo sabés)</label>
+                  <label className="text-sm font-medium text-dark mb-1.5 block">Nombre *</label>
                   <input value={animalName} onChange={(e) => setAnimalName(e.target.value)} placeholder="Ej: Luna" className="w-full h-12 px-4 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-dark mb-1.5 block">Fecha del avistamiento</label>
+                  <label className="text-sm font-medium text-dark mb-1.5 block">Fecha del avistamiento *</label>
                   <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full h-12 px-4 border border-border rounded-xl text-sm text-dark focus:outline-none focus:border-terra transition-colors box-border" />
                 </div>
               </div>
@@ -279,11 +310,11 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
               <h2 className="font-display text-2xl font-semibold text-dark mb-6">¿Dónde fue visto?</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-dark mb-1.5 block">Dirección o referencia</label>
+                  <label className="text-sm font-medium text-dark mb-1.5 block">Dirección o referencia *</label>
                   <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Ej: Av. Aconquija 1200, esquina con San Lorenzo" className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-dark mb-1.5 block">Barrio o zona</label>
+                  <label className="text-sm font-medium text-dark mb-1.5 block">Barrio o zona *</label>
                   <select value={zone} onChange={(e) => setZone(e.target.value)} className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors">
                     <option value="">Seleccionar zona...</option>
                     {['Centro', 'Yerba Buena', 'Las Talitas', 'Villa 9 de Julio', 'Lomas de Tafí', 'El Manantial', 'Alberdi', 'Ranchillos', 'Muñecas', 'San Cayetano'].map((z) => <option key={z}>{z}</option>)}
@@ -291,6 +322,7 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
                 </div>
 
                 <div>
+                  <label className="text-sm font-medium text-dark mb-1.5 block">Ubicación en el mapa *</label>
                   <button
                     type="button"
                     onClick={handleUseMyLocation}
@@ -338,8 +370,8 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
           {/* Step 3 */}
           {step === 3 && (
             <div>
-              <h2 className="font-display text-2xl font-semibold text-dark mb-6">Subí fotos del animal</h2>
-              <p className="text-warm-mid text-sm mb-6">Las fotos ayudan mucho a que la comunidad pueda identificar al animal. Cuantas más, mejor.</p>
+              <h2 className="font-display text-2xl font-semibold text-dark mb-6">Subí fotos del animal *</h2>
+              <p className="text-warm-mid text-sm mb-6">Las fotos ayudan mucho a que la comunidad pueda identificar al animal. Subí al menos una foto para continuar.</p>
 
               <input
                 ref={fileInputRef}
@@ -374,6 +406,9 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
                 )}
               </div>
               <p className="text-xs text-warm-mid">Formatos: JPG, PNG. Máximo 10 fotos. Podés tomar una foto nueva o elegir desde tu galería o archivos.</p>
+              {images.length === 0 && (
+                <p className="text-xs text-red-600 mt-2">Subí al menos una foto para continuar.</p>
+              )}
             </div>
           )}
 
@@ -384,11 +419,11 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-dark mb-1.5 block">Color</label>
+                    <label className="text-sm font-medium text-dark mb-1.5 block">Color *</label>
                     <input value={color} onChange={(e) => setColor(e.target.value)} placeholder="Ej: Dorado, marrón y blanco" className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors" />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-dark mb-1.5 block">Tamaño</label>
+                    <label className="text-sm font-medium text-dark mb-1.5 block">Tamaño *</label>
                     <select value={size} onChange={(e) => setSize(e.target.value)} className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors">
                       <option value="">Seleccionar...</option>
                       <option>Pequeño (menos de 10 kg)</option>
@@ -398,11 +433,16 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-dark mb-1.5 block">Señas particulares</label>
-                  <input placeholder="Ej: Collar azul, mancha en el ojo, cojea de la pata derecha" className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors" />
+                  <label className="text-sm font-medium text-dark mb-1.5 block">Señas particulares *</label>
+                  <input
+                    value={marks}
+                    onChange={(e) => setMarks(e.target.value)}
+                    placeholder="Ej: Collar azul, mancha en el ojo, cojea de la pata derecha"
+                    className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors"
+                  />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-dark mb-1.5 block">Información adicional</label>
+                  <label className="text-sm font-medium text-dark mb-1.5 block">Información adicional *</label>
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
@@ -422,16 +462,16 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-dark mb-1.5 block">Nombre</label>
+                    <label className="text-sm font-medium text-dark mb-1.5 block">Nombre *</label>
                     <input value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="Tu nombre" className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors" />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-dark mb-1.5 block">Teléfono</label>
+                    <label className="text-sm font-medium text-dark mb-1.5 block">Teléfono *</label>
                     <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0381 000-0000" className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors" />
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-dark mb-1.5 block">Email</label>
+                  <label className="text-sm font-medium text-dark mb-1.5 block">Email *</label>
                   <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@email.com" className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors" />
                 </div>
                 <div className="bg-warm rounded-xl p-4 text-sm text-warm-mid">
