@@ -74,7 +74,7 @@ const INSTAGRAM_URL = 'https://www.instagram.com/orejitascallejeras_/';
 const PROJECT_NAME = 'Orejitas Callejeras';
 
 // La imagen está en /public
-const PROJECT_IMAGE = '/logo-orejitas-callejeras.png';
+const PROJECT_IMAGE = '/logo-orejitas-callejeras.jpg';
 
 const PROJECT_DESCRIPTION = [
   'Detrás de cada animal en la calle hay una historia, una mirada que pide ayuda y una vida que merece una oportunidad.',
