@@ -3,6 +3,7 @@ import type { NavigateFn } from '../types/navigation';
 import { listReports, AnimalReport } from '../lib/api';
 import AnimalCard from '../components/AnimalCard';
 import Footer from '../components/Footer';
+import orejitasLogo from '../assets/logo-orejitas-callejeras.jpg';
 import icon from '../imagenes/favicon.svg';
 import SEO from '../components/SEO';
 
@@ -74,7 +75,7 @@ const INSTAGRAM_URL = 'https://www.instagram.com/orejitascallejeras_/';
 const PROJECT_NAME = 'Orejitas Callejeras';
 
 // La imagen está en /public
-const PROJECT_IMAGE = `${import.meta.env.BASE_URL}logo-orejitas-callejeras.jpg`;
+const PROJECT_IMAGE = orejitasLogo;
 
 const PROJECT_DESCRIPTION = [
   'Detrás de cada animal en la calle hay una historia, una mirada que pide ayuda y una vida que merece una oportunidad.',
