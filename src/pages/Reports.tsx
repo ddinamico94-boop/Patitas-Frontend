@@ -22,6 +22,7 @@ const filters: { label: string; value: AnimalStatus | 'todos' }[] = [
   { label: 'En situación de calle', value: 'en_calle' },
   { label: 'Ayudados', value: 'ayudado' },
   { label: 'Rescatados', value: 'rescatado' },
+  { label: 'Maltrato animal', value: 'maltrato' },
 ];
 
 const zones = [
@@ -141,7 +142,7 @@ export default function Reports({
     <div className="bg-cream min-h-full">
       <SEO
         title="Reportes de animales perdidos y encontrados | Patitas Tucumán"
-        description="Consultá reportes de perros y gatos perdidos, encontrados, rescatados o en situación de calle en Tucumán."
+        description="Consultá reportes de perros y gatos perdidos, encontrados, rescatados, en situación de calle o de maltrato animal en Tucumán."
         path="/reportes"
       />
       {/* Header */}

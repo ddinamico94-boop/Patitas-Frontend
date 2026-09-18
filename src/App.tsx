@@ -25,6 +25,8 @@ const Register = lazy(() => import('./pages/Register'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Admin = lazy(() => import('./pages/Admin'));
 const Chat = lazy(() => import('./pages/Chat'));
+const MaltratoAnimal = lazy(() => import('./pages/MaltratoAnimal'));
+const AdminOrganismos = lazy(() => import('./pages/AdminOrganismos'));
 
 function PageLoader() {
   return (
@@ -45,11 +47,13 @@ function PageLoader() {
  *
  * Ejemplos:
  *
- * /                  -> home
- * /reportes          -> reports
- * /reporte/123       -> detail
- * /mapa              -> map
- * /crear-reporte     -> create
+ * /                      -> home
+ * /reportes              -> reports
+ * /reporte/123           -> detail
+ * /mapa                  -> map
+ * /crear-reporte         -> create
+ * /maltrato-animal       -> maltrato
+ * /admin/organismos      -> admin-organismos
  */
 function getPageFromPath(): {
   page: Page;
@@ -124,6 +128,20 @@ function getPageFromPath(): {
     };
   }
 
+  if (path === '/admin/organismos') {
+    return {
+      page: 'admin-organismos',
+      id: null,
+    };
+  }
+
+  if (path === '/maltrato-animal') {
+    return {
+      page: 'maltrato',
+      id: null,
+    };
+  }
+
   if (path.startsWith('/chat/')) {
     const id = decodeURIComponent(
       path.replace('/chat/', '')
@@ -182,6 +200,12 @@ function getPathFromPage(
     case 'admin':
       return '/admin';
 
+    case 'admin-organismos':
+      return '/admin/organismos';
+
+    case 'maltrato':
+      return '/maltrato-animal';
+
     case 'chat':
       return id
         ? `/chat/${encodeURIComponent(id)}`
@@ -201,6 +225,7 @@ export default function App() {
    * patitastucuman.com/reportes
    * patitastucuman.com/mapa
    * patitastucuman.com/reporte/123
+   * patitastucuman.com/maltrato-animal
    */
   const initialRoute = getPageFromPath();
 
@@ -397,6 +422,18 @@ export default function App() {
 
         {page === 'admin' && (
           <Admin
+            navigate={navigate}
+          />
+        )}
+
+        {page === 'admin-organismos' && (
+          <AdminOrganismos
+            navigate={navigate}
+          />
+        )}
+
+        {page === 'maltrato' && (
+          <MaltratoAnimal
             navigate={navigate}
           />
         )}

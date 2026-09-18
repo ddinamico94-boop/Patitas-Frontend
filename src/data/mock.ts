@@ -1,6 +1,12 @@
-export type AnimalStatus = 'perdido' | 'encontrado' | 'en_calle' | 'ayudado' | 'rescatado';
-export type AnimalType = 'perro' | 'gato' | 'otro';
+export type AnimalStatus =
+  | 'perdido'
+  | 'encontrado'
+  | 'en_calle'
+  | 'ayudado'
+  | 'rescatado'
+  | 'maltrato';
 
+export type AnimalType = 'perro' | 'gato' | 'otro';
 
 export interface AnimalReport {
   id: string;
@@ -21,6 +27,17 @@ export interface AnimalReport {
   lat: number;
   lng: number;
   reporterUserId: string | null;
+
+  // Campos específicos de reportes de tipo "Maltrato animal".
+  // Opcionales: no aplican a perdido/encontrado/en_calle/ayudado/rescatado.
+  animalCount?: number;
+  mistreatmentType?: MistreatmentType;
+  apparentCondition?: string;
+  inDangerNow?: boolean;
+  needsUrgentVet?: boolean;
+  urgencyLevel?: UrgencyLevel;
+  hasWitnesses?: boolean;
+  witnessesInfo?: string;
 }
 
 export const statusLabel: Record<AnimalStatus, string> = {
@@ -29,6 +46,7 @@ export const statusLabel: Record<AnimalStatus, string> = {
   en_calle: 'En situación de calle',
   ayudado: 'Ayudado',
   rescatado: 'Rescatado',
+  maltrato: 'Maltrato animal',
 };
 
 export const statusColor: Record<AnimalStatus, string> = {
@@ -37,6 +55,7 @@ export const statusColor: Record<AnimalStatus, string> = {
   en_calle: 'bg-amber-50 text-amber-700 border border-amber-200',
   ayudado: 'bg-green-50 text-green-700 border border-green-200',
   rescatado: 'bg-violet-50 text-violet-700 border border-violet-200',
+  maltrato: 'bg-red-100 text-red-800 border border-red-300',
 };
 
 export const statusDot: Record<AnimalStatus, string> = {
@@ -45,6 +64,59 @@ export const statusDot: Record<AnimalStatus, string> = {
   en_calle: '#F59E0B',
   ayudado: '#22C55E',
   rescatado: '#8B5CF6',
+  maltrato: '#DC2626',
+};
+
+// ==== Maltrato animal: tipos de situación ====
+export type MistreatmentType =
+  | 'agresion_fisica'
+  | 'abandono'
+  | 'falta_alimento_agua'
+  | 'atado_permanente'
+  | 'condiciones_insalubres'
+  | 'falta_atencion_veterinaria'
+  | 'animal_herido'
+  | 'explotacion'
+  | 'posible_envenenamiento'
+  | 'otro'
+  | 'no_seguro';
+
+export const mistreatmentTypeLabel: Record<MistreatmentType, string> = {
+  agresion_fisica: 'Agresión física',
+  abandono: 'Abandono',
+  falta_alimento_agua: 'Falta de alimento o agua',
+  atado_permanente: 'Animal permanentemente atado',
+  condiciones_insalubres: 'Condiciones insalubres',
+  falta_atencion_veterinaria: 'Falta de atención veterinaria',
+  animal_herido: 'Animal herido',
+  explotacion: 'Explotación',
+  posible_envenenamiento: 'Posible envenenamiento',
+  otro: 'Otro',
+  no_seguro: 'No estoy seguro',
+};
+
+// ==== Maltrato animal: nivel de urgencia ====
+export type UrgencyLevel = 'urgente' | 'alta' | 'media' | 'informativa';
+
+export const urgencyLabel: Record<UrgencyLevel, string> = {
+  urgente: 'Urgente',
+  alta: 'Alta',
+  media: 'Media',
+  informativa: 'Informativa',
+};
+
+export const urgencyDescription: Record<UrgencyLevel, string> = {
+  urgente: 'El animal está en peligro inmediato.',
+  alta: 'Existe una situación grave que requiere atención.',
+  media: 'Existe una situación preocupante pero no parece haber peligro inmediato.',
+  informativa: 'Quiero dejar registrada una situación o pedir orientación.',
+};
+
+export const urgencyColor: Record<UrgencyLevel, string> = {
+  urgente: 'bg-red-50 text-red-700 border border-red-300',
+  alta: 'bg-orange-50 text-orange-700 border border-orange-300',
+  media: 'bg-amber-50 text-amber-700 border border-amber-300',
+  informativa: 'bg-blue-50 text-blue-700 border border-blue-300',
 };
 
 /**

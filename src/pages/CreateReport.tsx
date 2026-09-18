@@ -1,5 +1,12 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { AnimalStatus, AnimalType } from '../data/mock';
+import {
+  mistreatmentTypeLabel,
+  urgencyLabel,
+  urgencyDescription,
+  type MistreatmentType,
+  type UrgencyLevel,
+} from '../data/mock';
 import type { NavigateFn } from '../types/navigation';
 import { createReport, uploadImages, getSession } from '../lib/api';
 import SEO from '../components/SEO';
@@ -12,13 +19,14 @@ const steps = [
   { n: 5, label: 'Contacto' },
 ];
 
-type ReportType = 'perdido' | 'encontrado' | 'en_calle' | '';
+type ReportType = 'perdido' | 'encontrado' | 'en_calle' | 'maltrato' | '';
 type AnimalKind = 'perro' | 'gato' | 'otro' | '';
 
 const reportTypes = [
   { value: 'perdido' as const, icon: '', label: 'Animal perdido', desc: 'Mi mascota se perdió y la estoy buscando' },
   { value: 'encontrado' as const, icon: '', label: 'Animal encontrado', desc: 'Encontré un animal que podría estar perdido' },
   { value: 'en_calle' as const, icon: '', label: 'En situación de calle', desc: 'Vi un animal que necesita ayuda en la calle' },
+  { value: 'maltrato' as const, icon: '', label: 'Maltrato animal', desc: 'Vi un caso de maltrato, abandono o negligencia hacia un animal' },
 ];
 
 const animalKinds = [
@@ -49,11 +57,37 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
 
+  // Campos específicos de "Maltrato animal"
+  const [animalCount, setAnimalCount] = useState('1');
+  const [mistreatmentType, setMistreatmentType] = useState<MistreatmentType | ''>('');
+  const [apparentCondition, setApparentCondition] = useState('');
+  const [inDangerNow, setInDangerNow] = useState(false);
+  const [needsUrgentVet, setNeedsUrgentVet] = useState(false);
+  const [urgencyLevel, setUrgencyLevel] = useState<UrgencyLevel | ''>('');
+  const [hasWitnesses, setHasWitnesses] = useState(false);
+  const [witnessesInfo, setWitnessesInfo] = useState('');
+
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Si el usuario viene desde la sección "Maltrato Animal" con un tipo de
+  // situación ya elegido, prellenamos el formulario una sola vez.
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('patitas_maltrato_prefill');
+      if (raw) {
+        const data = JSON.parse(raw) as { mistreatmentType?: MistreatmentType };
+        setReportType('maltrato');
+        if (data.mistreatmentType) setMistreatmentType(data.mistreatmentType);
+        sessionStorage.removeItem('patitas_maltrato_prefill');
+      }
+    } catch {
+      // Si falla, el usuario simplemente completa el formulario a mano.
+    }
+  }, []);
 
   const handleUseMyLocation = () => {
     if (!navigator.geolocation) {
@@ -102,16 +136,23 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
 
   const progress = ((step - 1) / (steps.length - 1)) * 100;
 
+  const isMaltrato = reportType === 'maltrato';
+
   // Todos los pasos son obligatorios: el botón "Continuar" queda
   // deshabilitado hasta que se complete cada campo requerido del paso actual.
   const canNext = () => {
     if (step === 1) {
-      return (
-        reportType !== '' &&
-        animalKind !== '' &&
-        animalName.trim() !== '' &&
-        date !== ''
-      );
+      const base = reportType !== '' && animalKind !== '' && date !== '';
+      if (isMaltrato) {
+        return (
+          base &&
+          animalCount.trim() !== '' &&
+          mistreatmentType !== '' &&
+          apparentCondition.trim() !== '' &&
+          urgencyLevel !== ''
+        );
+      }
+      return base && animalName.trim() !== '';
     }
     if (step === 2) {
       // Dirección y zona son ambas obligatorias.
@@ -121,19 +162,14 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
       return images.length > 0;
     }
     if (step === 4) {
-      return (
-        color.trim() !== '' &&
-        size !== '' &&
-        marks.trim() !== '' &&
-        notes.trim() !== ''
-      );
+      const baseOk = color.trim() !== '' && size !== '' && marks.trim() !== '' && notes.trim() !== '';
+      if (isMaltrato && hasWitnesses) {
+        return baseOk && witnessesInfo.trim() !== '';
+      }
+      return baseOk;
     }
     if (step === 5) {
-      return (
-        contactName.trim() !== '' &&
-        phone.trim() !== '' &&
-        email.trim() !== ''
-      );
+      return contactName.trim() !== '' && phone.trim() !== '' && email.trim() !== '';
     }
     return true;
   };
@@ -166,6 +202,14 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
         mapLat: coords?.lat,
         mapLng: coords?.lng,
         images: uploadedUrls,
+        animalCount: isMaltrato ? Number(animalCount) || undefined : undefined,
+        mistreatmentType: isMaltrato ? (mistreatmentType || undefined) : undefined,
+        apparentCondition: isMaltrato ? (apparentCondition || undefined) : undefined,
+        inDangerNow: isMaltrato ? inDangerNow : undefined,
+        needsUrgentVet: isMaltrato ? needsUrgentVet : undefined,
+        urgencyLevel: isMaltrato ? (urgencyLevel || undefined) : undefined,
+        hasWitnesses: isMaltrato ? hasWitnesses : undefined,
+        witnessesInfo: isMaltrato && hasWitnesses ? witnessesInfo : undefined,
       });
       setSubmitted(true);
     } catch (err) {
@@ -203,7 +247,7 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
     <div className="bg-cream min-h-full">
       <SEO
         title="Crear reporte | Patitas Tucumán"
-        description="Publicá un reporte de un animal perdido, encontrado, rescatado o en situación de calle en Tucumán."
+        description="Publicá un reporte de un animal perdido, encontrado, rescatado, en situación de calle o un caso de maltrato animal en Tucumán."
         path="/crear-reporte"
       />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
@@ -291,9 +335,11 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
                 ))}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
                 <div>
-                  <label className="text-sm font-medium text-dark mb-1.5 block">Nombre *</label>
+                  <label className="text-sm font-medium text-dark mb-1.5 block">
+                    Nombre {isMaltrato ? '(si lo sabés)' : '*'}
+                  </label>
                   <input value={animalName} onChange={(e) => setAnimalName(e.target.value)} placeholder="Ej: Luna" className="w-full h-12 px-4 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors" />
                 </div>
                 <div>
@@ -301,6 +347,74 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
                   <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full h-12 px-4 border border-border rounded-xl text-sm text-dark focus:outline-none focus:border-terra transition-colors box-border" />
                 </div>
               </div>
+
+              {isMaltrato && (
+                <div className="space-y-4 border-t border-border pt-6 mt-4">
+                  <div>
+                    <label className="text-sm font-medium text-dark mb-1.5 block">Cantidad de animales *</label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={animalCount}
+                      onChange={(e) => setAnimalCount(e.target.value)}
+                      className="w-full h-12 px-4 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-dark mb-1.5 block">Tipo de maltrato *</label>
+                    <select
+                      value={mistreatmentType}
+                      onChange={(e) => setMistreatmentType(e.target.value as MistreatmentType | '')}
+                      className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors"
+                    >
+                      <option value="">Seleccionar...</option>
+                      {Object.entries(mistreatmentTypeLabel).map(([v, l]) => (
+                        <option key={v} value={v}>{l}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-dark mb-1.5 block">Estado aparente del animal *</label>
+                    <input
+                      value={apparentCondition}
+                      onChange={(e) => setApparentCondition(e.target.value)}
+                      placeholder="Ej: desnutrido, con heridas visibles"
+                      className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label className="flex items-center gap-2 text-sm text-dark">
+                      <input type="checkbox" checked={inDangerNow} onChange={(e) => setInDangerNow(e.target.checked)} />
+                      ¿Está en peligro ahora?
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-dark">
+                      <input type="checkbox" checked={needsUrgentVet} onChange={(e) => setNeedsUrgentVet(e.target.checked)} />
+                      ¿Necesita atención veterinaria urgente?
+                    </label>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-dark mb-1.5 block">Nivel de urgencia *</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {(Object.keys(urgencyLabel) as UrgencyLevel[]).map((lvl) => (
+                        <button
+                          key={lvl}
+                          type="button"
+                          onClick={() => setUrgencyLevel(lvl)}
+                          className={`p-3 rounded-xl border-2 text-left text-xs transition-all ${
+                            urgencyLevel === lvl ? 'border-terra bg-terra/5' : 'border-border hover:border-terra/40'
+                          }`}
+                        >
+                          <p className="font-semibold text-dark text-sm">{urgencyLabel[lvl]}</p>
+                          <p className="text-warm-mid">{urgencyDescription[lvl]}</p>
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-[11px] text-warm-mid mt-2">
+                      Este nivel es solo orientativo y no constituye una clasificación legal.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -371,7 +485,11 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
           {step === 3 && (
             <div>
               <h2 className="font-display text-2xl font-semibold text-dark mb-6">Subí fotos del animal *</h2>
-              <p className="text-warm-mid text-sm mb-6">Las fotos ayudan mucho a que la comunidad pueda identificar al animal. Subí al menos una foto para continuar.</p>
+              <p className="text-warm-mid text-sm mb-6">
+                {isMaltrato
+                  ? 'Las fotos y videos ayudan a documentar la situación. Subí al menos una foto para continuar, pero no te expongas para conseguirla.'
+                  : 'Las fotos ayudan mucho a que la comunidad pueda identificar al animal. Subí al menos una foto para continuar.'}
+              </p>
 
               <input
                 ref={fileInputRef}
@@ -451,6 +569,26 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
                     className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors resize-none"
                   />
                 </div>
+
+                {isMaltrato && (
+                  <div className="border-t border-border pt-4 space-y-3">
+                    <label className="flex items-center gap-2 text-sm text-dark">
+                      <input type="checkbox" checked={hasWitnesses} onChange={(e) => setHasWitnesses(e.target.checked)} />
+                      ¿Hay testigos?
+                    </label>
+                    {hasWitnesses && (
+                      <div>
+                        <label className="text-sm font-medium text-dark mb-1.5 block">Información de testigos *</label>
+                        <input
+                          value={witnessesInfo}
+                          onChange={(e) => setWitnessesInfo(e.target.value)}
+                          placeholder="Nombre, contacto o descripción de los testigos"
+                          className="w-full px-3.5 py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:border-terra transition-colors"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -459,6 +597,13 @@ export default function CreateReport({ navigate }: { navigate: NavigateFn }) {
           {step === 5 && (
             <div>
               <h2 className="font-display text-2xl font-semibold text-dark mb-6">Tu información de contacto</h2>
+
+              {isMaltrato && (
+                <div className="bg-amber-50 border border-amber-200 text-amber-900 text-sm rounded-xl p-4 mb-5">
+                  Importante: no te pongas en peligro para obtener fotografías, videos o información.
+                </div>
+              )}
+
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>

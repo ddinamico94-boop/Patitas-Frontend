@@ -8,6 +8,8 @@ export type Page =
   | 'register'
   | 'profile'
   | 'admin'
+  | 'admin-organismos'
+  | 'maltrato'
   | 'chat';
 
 export type NavigateFn = (page: Page, id?: string) => void;

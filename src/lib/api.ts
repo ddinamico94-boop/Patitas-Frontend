@@ -1,4 +1,10 @@
-import type { AnimalReport, AnimalStatus, AnimalType } from '../data/mock';
+import type {
+  AnimalReport,
+  AnimalStatus,
+  AnimalType,
+  MistreatmentType,
+  UrgencyLevel,
+} from '../data/mock';
 
 // Nota: AnimalReport ahora incluye reporterUserId (ver data/mock.ts)
 
@@ -133,6 +139,19 @@ export interface ApiReport {
   images: ApiImage[];
   createdAt: string;
   userId?: string | null;
+
+  // Campos específicos de "Maltrato animal".
+  // NOTA: estos campos requieren que el backend los acepte y persista;
+  // si el endpoint /api/reports todavía no los contempla, van a ser
+  // ignorados silenciosamente hasta que se actualice ahí.
+  animalCount?: number | null;
+  mistreatmentType?: MistreatmentType | null;
+  apparentCondition?: string | null;
+  inDangerNow?: boolean | null;
+  needsUrgentVet?: boolean | null;
+  urgencyLevel?: UrgencyLevel | null;
+  hasWitnesses?: boolean | null;
+  witnessesInfo?: string | null;
 }
 
 function formatDate(iso: string): string {
@@ -163,6 +182,14 @@ function adaptReport(r: ApiReport): AnimalReport {
     lat: r.mapLat ?? 0,
     lng: r.mapLng ?? 0,
     reporterUserId: r.userId ?? null,
+    animalCount: r.animalCount ?? undefined,
+    mistreatmentType: r.mistreatmentType ?? undefined,
+    apparentCondition: r.apparentCondition ?? undefined,
+    inDangerNow: r.inDangerNow ?? undefined,
+    needsUrgentVet: r.needsUrgentVet ?? undefined,
+    urgencyLevel: r.urgencyLevel ?? undefined,
+    hasWitnesses: r.hasWitnesses ?? undefined,
+    witnessesInfo: r.witnessesInfo ?? undefined,
   };
 }
 
@@ -235,6 +262,16 @@ export interface CreateReportInput {
   mapLat?: number;
   mapLng?: number;
   images: string[]; // URLs ya subidas
+
+  // Campos específicos de "Maltrato animal" (opcionales).
+  animalCount?: number;
+  mistreatmentType?: MistreatmentType;
+  apparentCondition?: string;
+  inDangerNow?: boolean;
+  needsUrgentVet?: boolean;
+  urgencyLevel?: UrgencyLevel;
+  hasWitnesses?: boolean;
+  witnessesInfo?: string;
 }
 
 export async function createReport(input: CreateReportInput): Promise<AnimalReport> {

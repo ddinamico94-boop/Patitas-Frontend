@@ -23,6 +23,7 @@ const navLinks: { label: string; page: Page }[] = [
   { label: 'Inicio', page: 'home' },
   { label: 'Reportes', page: 'reports' },
   { label: 'Mapa', page: 'map' },
+  { label: 'Maltrato Animal', page: 'maltrato' },
 ];
 
 export { PawIcon };
