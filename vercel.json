@@ -9,7 +9,7 @@
       "destination": "https://patitas-backend-tjx6.onrender.com/api/reports/share/:id"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!assets/|.*\\.[^/]+$).*)",
       "destination": "/index.html"
     }
   ]
