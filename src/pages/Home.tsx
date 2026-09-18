@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
-import { reports } from '../data/mock';
 import type { NavigateFn } from '../types/navigation';
 import { listReports, AnimalReport } from '../lib/api';
 import AnimalCard from '../components/AnimalCard';
 import Footer from '../components/Footer';
-import { PawIcon } from '../components/Navbar';
 import icon from '../imagenes/favicon.svg';
-import logoOrejitasCallejeras from '../imagenes/logo-orejitas-callejeras.jpg';
 import SEO from '../components/SEO';
 
 const steps = [
@@ -70,10 +67,14 @@ const steps = [
 ];
 
 // ============================================
-// INSTAGRAM COLABORATIVO — "Cómo ayudar"
+// INSTAGRAM COLABORATIVO
 // ============================================
+
 const INSTAGRAM_URL = 'https://www.instagram.com/orejitascallejeras_/';
 const PROJECT_NAME = 'Orejitas Callejeras';
+
+// La imagen está en /public
+const PROJECT_IMAGE = '/logo-orejitas-callejeras.jpg';
 
 const PROJECT_DESCRIPTION = [
   'Detrás de cada animal en la calle hay una historia, una mirada que pide ayuda y una vida que merece una oportunidad.',
@@ -81,8 +82,6 @@ const PROJECT_DESCRIPTION = [
   'Desde Patitas Tucumán nos unimos a esta misión para amplificar sus historias, facilitar la difusión de los casos y conectar a quienes necesitan ayuda con quienes están dispuestos a brindarla.',
   'Porque cuando nos unimos, una pequeña ayuda puede cambiar una vida.',
 ];
-
-const PROJECT_IMAGE = logoOrejitasCallejeras;
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -120,8 +119,9 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
   const [loadingRecent, setLoadingRecent] = useState(true);
   const [stats, setStats] = useState<HomeStats | null>(null);
 
-  // Controla si se muestra u oculta la descripción completa
-  const [showProjectDescription, setShowProjectDescription] = useState(false);
+  // Controla la descripción de Orejitas Callejeras
+  const [showProjectDescription, setShowProjectDescription] =
+    useState(false);
 
   useEffect(() => {
     let active = true;
@@ -196,7 +196,9 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
         path="/"
       />
 
-      {/* Hero */}
+      {/* =========================
+          HERO
+      ========================== */}
       <section className="bg-cream pt-2 pb-0 overflow-hidden sm:pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
@@ -274,7 +276,9 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
         </div>
       </section>
 
-      {/* Stats */}
+      {/* =========================
+          STATS
+      ========================== */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -296,7 +300,9 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
         </div>
       </section>
 
-      {/* How it works / Cómo ayudar */}
+      {/* =========================
+          CÓMO AYUDAR
+      ========================== */}
       <section
         id="como-funciona"
         className="py-16 bg-warm scroll-mt-24"
@@ -337,7 +343,9 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
             ))}
           </div>
 
-          {/* Sumate y ayudá desde Instagram */}
+          {/* =========================
+              OREJITAS CALLEJERAS
+          ========================== */}
           <div className="mt-16">
             <div className="text-center max-w-2xl mx-auto mb-10">
               <div className="inline-flex items-center gap-2 text-terra text-sm font-semibold mb-4 px-3.5 py-1.5 bg-terra/10 rounded-full">
@@ -360,24 +368,19 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
 
             <div className="max-w-2xl mx-auto">
               <div className="group bg-white rounded-3xl border border-border p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6 hover:border-terra/40 hover:shadow-lg transition-all duration-300">
+                
+                {/* FOTO DE OREJITAS */}
                 <div className="relative shrink-0">
                   <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-cream border border-border">
-                    {PROJECT_IMAGE ? (
-                      <img
-                        src={PROJECT_IMAGE}
-                        alt={PROJECT_NAME}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-terra/10">
-                        <img
-                          src={icon}
-                          alt=""
-                          className="w-10 h-10 opacity-60"
-                        />
-                      </div>
-                    )}
+                    <img
+                      src={PROJECT_IMAGE}
+                      alt={PROJECT_NAME}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      onError={(event) => {
+                        event.currentTarget.style.display = 'none';
+                      }}
+                    />
                   </div>
 
                   <div className="absolute -bottom-2 -right-2 w-9 h-9 rounded-xl bg-gradient-to-br from-[#f58529] via-[#dd2a7b] to-[#8134af] flex items-center justify-center shadow-md ring-2 ring-white">
@@ -385,6 +388,7 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
                   </div>
                 </div>
 
+                {/* CONTENIDO */}
                 <div className="flex-1 text-center sm:text-left">
                   <h3 className="font-display text-lg font-semibold text-dark mb-3">
                     {PROJECT_NAME}
@@ -457,7 +461,9 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
         </div>
       </section>
 
-      {/* Recent reports */}
+      {/* =========================
+          REPORTES RECIENTES
+      ========================== */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-10">
@@ -522,11 +528,12 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
         </div>
       </section>
 
-      {/* CTA Banner */}
+      {/* =========================
+          CTA
+      ========================== */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-terra rounded-3xl p-10 lg:p-16 text-center text-white relative overflow-hidden">
-            {/* Iconos decorativos */}
             <div className="absolute inset-0 pointer-events-none">
               <img
                 src={icon}
