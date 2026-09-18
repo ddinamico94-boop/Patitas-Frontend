@@ -6,6 +6,7 @@ import AnimalCard from '../components/AnimalCard';
 import Footer from '../components/Footer';
 import { PawIcon } from '../components/Navbar';
 import icon from '../imagenes/favicon.svg';
+import logoOrejitasCallejeras from '../imagenes/logo-orejitas-callejeras.jpg';
 import SEO from '../components/SEO';
 
 const steps = [
@@ -68,6 +69,45 @@ const steps = [
   },
 ];
 
+// ============================================
+// INSTAGRAM COLABORATIVO — "Cómo ayudar"
+// ============================================
+const INSTAGRAM_URL = 'https://www.instagram.com/orejitascallejeras_/';
+const PROJECT_NAME = 'Orejitas Callejeras';
+
+const PROJECT_DESCRIPTION = [
+  'Detrás de cada animal en la calle hay una historia, una mirada que pide ayuda y una vida que merece una oportunidad.',
+  'Orejitas Callejeras trabaja para rescatar, cuidar y dar visibilidad a animales que se encuentran en situación de calle, acompañándolos en el camino hacia una vida mejor y un hogar responsable.',
+  'Desde Patitas Tucumán nos unimos a esta misión para amplificar sus historias, facilitar la difusión de los casos y conectar a quienes necesitan ayuda con quienes están dispuestos a brindarla.',
+  'Porque cuando nos unimos, una pequeña ayuda puede cambiar una vida.',
+];
+
+const PROJECT_IMAGE = logoOrejitasCallejeras;
+
+function InstagramIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle
+        cx="17.3"
+        cy="6.7"
+        r="1.1"
+        fill="currentColor"
+        stroke="none"
+      />
+    </svg>
+  );
+}
+
 interface HomeStats {
   total: number;
   perdidos: number;
@@ -79,6 +119,9 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
   const [recent, setRecent] = useState<AnimalReport[]>([]);
   const [loadingRecent, setLoadingRecent] = useState(true);
   const [stats, setStats] = useState<HomeStats | null>(null);
+
+  // Controla si se muestra u oculta la descripción completa
+  const [showProjectDescription, setShowProjectDescription] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -159,7 +202,11 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div className="py-8 lg:py-16">
               <div className="inline-flex items-center gap-2 text-terra text-sm font-medium mb-6 px-3.5 py-1.5 bg-terra/10 rounded-full">
-                <img src={icon} alt='patitas tucuman' className='w-6 h-6'/>
+                <img
+                  src={icon}
+                  alt="Patitas Tucumán"
+                  className="w-6 h-6"
+                />
                 Comunidad de Tucumán
               </div>
 
@@ -249,7 +296,7 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
         </div>
       </section>
 
-      {/* How it works */}
+      {/* How it works / Cómo ayudar */}
       <section
         id="como-funciona"
         className="py-16 bg-warm scroll-mt-24"
@@ -257,7 +304,7 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="font-display text-4xl font-semibold text-dark mb-4">
-              ¿Cómo funciona?
+              ¿Cómo ayudar?
             </h2>
 
             <p className="text-warm-mid text-lg max-w-xl mx-auto">
@@ -268,10 +315,7 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
 
           <div className="grid md:grid-cols-3 gap-8">
             {steps.map((step) => (
-              <div
-                key={step.n}
-                className="relative"
-              >
+              <div key={step.n} className="relative">
                 <div className="bg-white rounded-2xl p-8 border border-border h-full">
                   <div className="w-14 h-14 rounded-2xl bg-terra/10 text-terra flex items-center justify-center mb-6">
                     {step.icon}
@@ -291,6 +335,124 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Sumate y ayudá desde Instagram */}
+          <div className="mt-16">
+            <div className="text-center max-w-2xl mx-auto mb-10">
+              <div className="inline-flex items-center gap-2 text-terra text-sm font-semibold mb-4 px-3.5 py-1.5 bg-terra/10 rounded-full">
+                <InstagramIcon className="w-4 h-4" />
+                Sumate y ayudá desde Instagram
+              </div>
+
+              <p className="text-warm-mid leading-relaxed mb-3">
+                Hay muchas formas de ayudar. También podés conocer y
+                acompañar a quienes trabajan día a día por los animales de
+                Tucumán.
+              </p>
+
+              <p className="text-warm-mid leading-relaxed">
+                Patitas Tucumán trabaja junto a proyectos y personas que
+                comparten el compromiso de ayudar y proteger a los animales
+                de nuestra provincia.
+              </p>
+            </div>
+
+            <div className="max-w-2xl mx-auto">
+              <div className="group bg-white rounded-3xl border border-border p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6 hover:border-terra/40 hover:shadow-lg transition-all duration-300">
+                <div className="relative shrink-0">
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden bg-cream border border-border">
+                    {PROJECT_IMAGE ? (
+                      <img
+                        src={PROJECT_IMAGE}
+                        alt={PROJECT_NAME}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-terra/10">
+                        <img
+                          src={icon}
+                          alt=""
+                          className="w-10 h-10 opacity-60"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="absolute -bottom-2 -right-2 w-9 h-9 rounded-xl bg-gradient-to-br from-[#f58529] via-[#dd2a7b] to-[#8134af] flex items-center justify-center shadow-md ring-2 ring-white">
+                    <InstagramIcon className="w-4 h-4 text-white" />
+                  </div>
+                </div>
+
+                <div className="flex-1 text-center sm:text-left">
+                  <h3 className="font-display text-lg font-semibold text-dark mb-3">
+                    {PROJECT_NAME}
+                  </h3>
+
+                  {/* Descripción colapsable */}
+                  <div className="mb-5">
+                    <div
+                      className={`text-sm text-warm-mid leading-relaxed space-y-3 ${
+                        !showProjectDescription
+                          ? 'max-h-[4.8rem] overflow-hidden relative'
+                          : ''
+                      }`}
+                    >
+                      {PROJECT_DESCRIPTION.map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
+
+                      {!showProjectDescription && (
+                        <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowProjectDescription(
+                          (previous) => !previous
+                        )
+                      }
+                      className="mt-3 text-terra font-semibold text-sm hover:underline inline-flex items-center gap-1"
+                    >
+                      {showProjectDescription
+                        ? 'Ocultar descripción'
+                        : 'Leer descripción'}
+
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className={`transition-transform duration-200 ${
+                          showProjectDescription
+                            ? 'rotate-180'
+                            : ''
+                        }`}
+                      >
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <a
+                    href={INSTAGRAM_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-white text-sm bg-gradient-to-r from-[#f58529] via-[#dd2a7b] to-[#8134af] hover:opacity-90 transition-opacity"
+                  >
+                    <InstagramIcon className="w-4 h-4" />
+                    Ver Instagram
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -364,30 +526,26 @@ export default function Home({ navigate }: { navigate: NavigateFn }) {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-terra rounded-3xl p-10 lg:p-16 text-center text-white relative overflow-hidden">
-
             {/* Iconos decorativos */}
-            {/* Iconos decorativos */}
-<div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 pointer-events-none">
+              <img
+                src={icon}
+                alt=""
+                className="absolute -top-10 -right-10 w-64 h-64 opacity-20 rotate-12 brightness-0 invert"
+              />
 
-  <img
-    src={icon}
-    alt=""
-    className="absolute -top-10 -right-10 w-64 h-64 opacity-20 rotate-12 brightness-0 invert"
-  />
+              <img
+                src={icon}
+                alt=""
+                className="absolute -bottom-12 -left-8 w-48 h-48 opacity-20 -rotate-12 brightness-0 invert"
+              />
 
-  <img
-    src={icon}
-    alt=""
-    className="absolute -bottom-12 -left-8 w-48 h-48 opacity-20 -rotate-12 brightness-0 invert"
-  />
-
-  <img
-    src={icon}
-    alt=""
-    className="absolute top-5 left-5 w-28 h-28 opacity-10 rotate-12 brightness-0 invert"
-  />
-
-</div>
+              <img
+                src={icon}
+                alt=""
+                className="absolute top-5 left-5 w-28 h-28 opacity-10 rotate-12 brightness-0 invert"
+              />
+            </div>
 
             <div className="relative">
               <h2 className="font-display text-4xl lg:text-5xl font-semibold mb-4">
