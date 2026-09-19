@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { GoogleLogin } from '@react-oauth/google';
 
 import { AnimalStatus, AnimalType } from '../data/mock';
@@ -29,6 +30,7 @@ export default function CreateReport({
   navigate: NavigateFn;
   onAuthModalChange?: (open: boolean) => void;
 }) {
+  const queryClient = useQueryClient();
   const [authChecking, setAuthChecking] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -439,16 +441,23 @@ export default function CreateReport({
       });
 
       if (!report) {
-        throw new Error(
-          'No se pudo crear el reporte.'
-        );
-      }
+  throw new Error(
+    'No se pudo crear el reporte.'
+  );
+}
 
-      setSubmitted(true);
+// Actualizamos las listas de reportes.
+// Así el animal nuevo aparece en Adoptar
+// sin necesidad de refrescar la página.
+await queryClient.invalidateQueries({
+  queryKey: ['reports'],
+});
 
-      sessionStorage.removeItem(
-        'patitas_return_after_auth'
-      );
+setSubmitted(true);
+
+sessionStorage.removeItem(
+  'patitas_return_after_auth'
+);
     } catch (err) {
       setSubmitError(
         err instanceof Error
