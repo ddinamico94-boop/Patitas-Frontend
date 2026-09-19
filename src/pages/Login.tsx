@@ -14,7 +14,12 @@ import {
 
 import SEO from '../components/SEO';
 
-type ResetStep = 'login' | 'email' | 'code' | 'password' | 'success';
+type ResetStep =
+  | 'login'
+  | 'email'
+  | 'code'
+  | 'password'
+  | 'success';
 
 export default function Login({
   navigate,
@@ -23,10 +28,6 @@ export default function Login({
   navigate: NavigateFn;
   onLogin: () => void;
 }) {
-  // =====================================================
-  // LOGIN
-  // =====================================================
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
@@ -42,10 +43,6 @@ export default function Login({
 
   const [googleError, setGoogleError] =
     useState<string | null>(null);
-
-  // =====================================================
-  // RECUPERACIÓN DE CONTRASEÑA
-  // =====================================================
 
   const [resetStep, setResetStep] =
     useState<ResetStep>('login');
@@ -71,9 +68,41 @@ export default function Login({
   const [resetError, setResetError] =
     useState<string | null>(null);
 
-  // =====================================================
-  // LOGIN CON EMAIL
-  // =====================================================
+  /*
+   * =====================================================
+   * DESPUÉS DEL LOGIN
+   * =====================================================
+   */
+
+  const finishLogin = () => {
+    const returnPage =
+      sessionStorage.getItem(
+        'patitas_return_after_auth'
+      );
+
+    sessionStorage.removeItem(
+      'patitas_return_after_auth'
+    );
+
+    onLogin();
+
+    /*
+     * Si el usuario venía desde Reportar animal,
+     * vuelve directamente al formulario.
+     */
+    if (returnPage === 'create') {
+      navigate('create');
+      return;
+    }
+
+    navigate('profile');
+  };
+
+  /*
+   * =====================================================
+   * LOGIN CON EMAIL
+   * =====================================================
+   */
 
   const handleEmailLogin = async () => {
     if (!email.trim()) {
@@ -97,7 +126,7 @@ export default function Login({
       );
 
       saveSession(auth);
-      onLogin();
+      finishLogin();
     } catch (err) {
       setLoginError(
         err instanceof Error
@@ -109,9 +138,11 @@ export default function Login({
     }
   };
 
-  // =====================================================
-  // LOGIN CON GOOGLE
-  // =====================================================
+  /*
+   * =====================================================
+   * LOGIN CON GOOGLE
+   * =====================================================
+   */
 
   const handleGoogleSuccess = async (
     credential: string | undefined
@@ -132,7 +163,7 @@ export default function Login({
         await loginWithGoogle(credential);
 
       saveSession(auth);
-      onLogin();
+      finishLogin();
     } catch (err) {
       setGoogleError(
         err instanceof Error
@@ -144,9 +175,11 @@ export default function Login({
     }
   };
 
-  // =====================================================
-  // SOLICITAR CÓDIGO
-  // =====================================================
+  /*
+   * =====================================================
+   * RECUPERAR CONTRASEÑA
+   * =====================================================
+   */
 
   const handleForgotPassword = async () => {
     const cleanEmail = resetEmail
@@ -177,10 +210,6 @@ export default function Login({
       setResetLoading(false);
     }
   };
-
-  // =====================================================
-  // VERIFICAR CÓDIGO
-  // =====================================================
 
   const handleVerifyCode = async () => {
     const cleanCode =
@@ -214,10 +243,6 @@ export default function Login({
       setResetLoading(false);
     }
   };
-
-  // =====================================================
-  // CAMBIAR CONTRASEÑA
-  // =====================================================
 
   const handleResetPassword = async () => {
     if (newPassword.length < 6) {
@@ -260,10 +285,6 @@ export default function Login({
     }
   };
 
-  // =====================================================
-  // VOLVER AL LOGIN
-  // =====================================================
-
   const returnToLogin = () => {
     setResetStep('login');
 
@@ -277,10 +298,6 @@ export default function Login({
     }
   };
 
-  // =====================================================
-  // ENTER LOGIN
-  // =====================================================
-
   const handleLoginKeyDown = (
     event: React.KeyboardEvent
   ) => {
@@ -291,10 +308,6 @@ export default function Login({
       handleEmailLogin();
     }
   };
-
-  // =====================================================
-  // ENTER RECUPERACIÓN
-  // =====================================================
 
   const handleResetKeyDown = (
     event: React.KeyboardEvent
@@ -318,10 +331,6 @@ export default function Login({
       handleResetPassword();
     }
   };
-
-  // =====================================================
-  // TÍTULOS
-  // =====================================================
 
   const getTitle = () => {
     switch (resetStep) {
@@ -361,10 +370,6 @@ export default function Login({
     }
   };
 
-  // =====================================================
-  // COMPONENTE OJO
-  // =====================================================
-
   const EyeIcon = ({
     visible,
   }: {
@@ -382,9 +387,7 @@ export default function Login({
       {visible ? (
         <>
           <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
-
           <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
-
           <line
             x1="1"
             y1="1"
@@ -395,7 +398,6 @@ export default function Login({
       ) : (
         <>
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-
           <circle
             cx="12"
             cy="12"
@@ -414,10 +416,6 @@ export default function Login({
         path="/login"
         noIndex
       />
-
-      {/* =================================================
-          PANEL IZQUIERDO
-      ================================================= */}
 
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img
@@ -463,15 +461,8 @@ export default function Login({
         </div>
       </div>
 
-      {/* =================================================
-          PANEL DERECHO
-      ================================================= */}
-
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-10">
         <div className="w-full max-w-md">
-
-          {/* LOGO MOBILE */}
-
           <div className="lg:hidden flex items-center gap-2.5 text-terra mb-8">
             <span className="text-xl text-dark">
               <span
@@ -498,18 +489,12 @@ export default function Login({
             {getDescription()}
           </p>
 
-          {/* =================================================
-              LOGIN NORMAL
-          ================================================= */}
-
           {resetStep === 'login' && (
             <>
               <div
                 className="space-y-4"
                 onKeyDown={handleLoginKeyDown}
               >
-                {/* EMAIL */}
-
                 <div>
                   <label className="text-sm font-medium text-dark mb-1.5 block">
                     Email
@@ -531,8 +516,6 @@ export default function Login({
                     className="w-full px-4 py-3 border border-border rounded-xl text-sm text-dark focus:outline-none focus:border-terra transition-colors bg-white disabled:opacity-60"
                   />
                 </div>
-
-                {/* CONTRASEÑA */}
 
                 <div>
                   <label className="text-sm font-medium text-dark mb-1.5 block">
@@ -581,8 +564,6 @@ export default function Login({
                   </div>
                 </div>
 
-                {/* OLVIDÉ CONTRASEÑA */}
-
                 <div className="flex justify-end">
                   <button
                     type="button"
@@ -604,8 +585,6 @@ export default function Login({
                 </div>
               </div>
 
-              {/* ERROR LOGIN */}
-
               {loginError && (
                 <div className="mt-4 px-4 py-3 bg-red-50 border border-red-200 rounded-xl">
                   <p className="text-sm text-red-600">
@@ -613,8 +592,6 @@ export default function Login({
                   </p>
                 </div>
               )}
-
-              {/* ERROR GOOGLE */}
 
               {googleError && (
                 <div className="mt-4 px-4 py-3 bg-red-50 border border-red-200 rounded-xl">
@@ -624,13 +601,11 @@ export default function Login({
                 </div>
               )}
 
-              {/* BOTONES */}
-
               <div className="mt-6 space-y-3">
                 <button
                   type="button"
                   onClick={handleEmailLogin}
-                  disabled={loginLoading}
+                  disabled={loginLoading || googleLoading}
                   className="w-full py-3.5 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loginLoading
@@ -641,32 +616,35 @@ export default function Login({
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-px bg-border" />
 
-                  <span className="text-xs text-warm-mid">
+                  <span className="text-xs text-warm-mid whitespace-nowrap">
                     o continuá con
                   </span>
 
                   <div className="flex-1 h-px bg-border" />
                 </div>
 
-                <div className="flex justify-center w-full">
-                  <GoogleLogin
-                    onSuccess={(
-                      credentialResponse
-                    ) =>
-                      handleGoogleSuccess(
+                <div className="w-full flex justify-center">
+                  <div className="w-full max-w-sm">
+                    <GoogleLogin
+                      onSuccess={(
                         credentialResponse
-                          .credential
-                      )
-                    }
-                    onError={() =>
-                      setGoogleError(
-                        'No se pudo iniciar sesión con Google.'
-                      )
-                    }
-                    text="continue_with"
-                    shape="pill"
-                    width="100%"
-                  />
+                      ) => {
+                        handleGoogleSuccess(
+                          credentialResponse.credential
+                        );
+                      }}
+                      onError={() => {
+                        setGoogleError(
+                          'No se pudo iniciar sesión con Google.'
+                        );
+                      }}
+                      text="continue_with"
+                      shape="pill"
+                      width="100%"
+                      theme="outline"
+                      size="large"
+                    />
+                  </div>
                 </div>
 
                 {googleLoading && (
@@ -675,8 +653,6 @@ export default function Login({
                   </p>
                 )}
               </div>
-
-              {/* REGISTRO */}
 
               <p className="text-center text-sm text-warm-mid mt-8">
                 ¿No tenés cuenta?{' '}
@@ -693,10 +669,6 @@ export default function Login({
               </p>
             </>
           )}
-
-          {/* =================================================
-              PASO 1 - EMAIL
-          ================================================= */}
 
           {resetStep === 'email' && (
             <div onKeyDown={handleResetKeyDown}>
@@ -752,10 +724,6 @@ export default function Login({
               </button>
             </div>
           )}
-
-          {/* =================================================
-              PASO 2 - CÓDIGO
-          ================================================= */}
 
           {resetStep === 'code' && (
             <div onKeyDown={handleResetKeyDown}>
@@ -819,10 +787,6 @@ export default function Login({
               </button>
             </div>
           )}
-
-          {/* =================================================
-              PASO 3 - NUEVA CONTRASEÑA
-          ================================================= */}
 
           {resetStep === 'password' && (
             <div
@@ -923,10 +887,6 @@ export default function Login({
             </div>
           )}
 
-          {/* =================================================
-              PASO 4 - ÉXITO
-          ================================================= */}
-
           {resetStep === 'success' && (
             <div>
               <div className="bg-white border border-border rounded-2xl p-6 text-center">
@@ -961,7 +921,6 @@ export default function Login({
               </button>
             </div>
           )}
-
         </div>
       </div>
     </div>

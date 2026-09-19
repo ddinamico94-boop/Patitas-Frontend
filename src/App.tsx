@@ -3,30 +3,31 @@ import {
   Suspense,
   useEffect,
   useState,
-} from 'react';
+} from 'react'
 
-import type { Page } from './types/navigation';
-import Navbar from './components/Navbar';
-import DonationWidget from './components/DonationWidget';
+import type { Page } from './types/navigation'
+import Navbar from './components/Navbar'
+import DonationWidget from './components/DonationWidget'
 
 import {
   getSession,
   clearSession,
   type User,
-} from './lib/api';
+} from './lib/api'
 
-const Home = lazy(() => import('./pages/Home'));
-const Reports = lazy(() => import('./pages/Reports'));
-const ReportDetail = lazy(() => import('./pages/ReportDetail'));
-const MapPage = lazy(() => import('./pages/MapPage'));
-const CreateReport = lazy(() => import('./pages/CreateReport'));
-const Login = lazy(() => import('./pages/Login'));
-const Register = lazy(() => import('./pages/Register'));
-const Profile = lazy(() => import('./pages/Profile'));
-const Admin = lazy(() => import('./pages/Admin'));
-const Chat = lazy(() => import('./pages/Chat'));
-const MaltratoAnimal = lazy(() => import('./pages/MaltratoAnimal'));
-const AdminOrganismos = lazy(() => import('./pages/AdminOrganismos'));
+const Home = lazy(() => import('./pages/Home'))
+const Reports = lazy(() => import('./pages/Reports'))
+const Adoptar = lazy(() => import('./pages/Adoptar'))
+const ReportDetail = lazy(() => import('./pages/ReportDetail'))
+const MapPage = lazy(() => import('./pages/MapPage'))
+const CreateReport = lazy(() => import('./pages/CreateReport'))
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
+const Profile = lazy(() => import('./pages/Profile'))
+const Admin = lazy(() => import('./pages/Admin'))
+const Chat = lazy(() => import('./pages/Chat'))
+const MaltratoAnimal = lazy(() => import('./pages/MaltratoAnimal'))
+const AdminOrganismos = lazy(() => import('./pages/AdminOrganismos'))
 
 function PageLoader() {
   return (
@@ -39,128 +40,121 @@ function PageLoader() {
         </p>
       </div>
     </div>
-  );
+  )
 }
 
 /*
  * Convierte una URL en una página de la aplicación.
- *
- * Ejemplos:
- *
- * /                      -> home
- * /reportes              -> reports
- * /reporte/123           -> detail
- * /mapa                  -> map
- * /crear-reporte         -> create
- * /maltrato-animal       -> maltrato
- * /admin/organismos      -> admin-organismos
  */
 function getPageFromPath(): {
-  page: Page;
-  id: string | null;
+  page: Page
+  id: string | null
 } {
-  const path = window.location.pathname;
+  const path = window.location.pathname
 
   if (path === '/') {
     return {
       page: 'home',
       id: null,
-    };
+    }
   }
 
   if (path === '/reportes') {
     return {
       page: 'reports',
       id: null,
-    };
+    }
+  }
+
+  if (path === '/adoptar') {
+    return {
+      page: 'adoptar',
+      id: null,
+    }
   }
 
   if (path.startsWith('/reporte/')) {
     const id = decodeURIComponent(
       path.replace('/reporte/', '')
-    );
+    )
 
     return {
       page: 'detail',
       id: id || null,
-    };
+    }
   }
 
   if (path === '/mapa') {
     return {
       page: 'map',
       id: null,
-    };
+    }
   }
 
   if (path === '/crear-reporte') {
     return {
       page: 'create',
       id: null,
-    };
+    }
   }
 
   if (path === '/login') {
     return {
       page: 'login',
       id: null,
-    };
+    }
   }
 
   if (path === '/registro') {
     return {
       page: 'register',
       id: null,
-    };
+    }
   }
 
   if (path === '/perfil') {
     return {
       page: 'profile',
       id: null,
-    };
+    }
   }
 
   if (path === '/admin') {
     return {
       page: 'admin',
       id: null,
-    };
+    }
   }
 
   if (path === '/admin/organismos') {
     return {
       page: 'admin-organismos',
       id: null,
-    };
+    }
   }
 
   if (path === '/maltrato-animal') {
     return {
       page: 'maltrato',
       id: null,
-    };
+    }
   }
 
   if (path.startsWith('/chat/')) {
     const id = decodeURIComponent(
       path.replace('/chat/', '')
-    );
+    )
 
     return {
       page: 'chat',
       id: id || null,
-    };
+    }
   }
 
-  /*
-   * Si alguien entra a una URL que no existe,
-   * mostramos Home.
-   */
   return {
     page: 'home',
     id: null,
-  };
+  }
 }
 
 /*
@@ -172,80 +166,80 @@ function getPathFromPage(
 ): string {
   switch (page) {
     case 'home':
-      return '/';
+      return '/'
 
     case 'reports':
-      return '/reportes';
+      return '/reportes'
+
+    case 'adoptar':
+      return '/adoptar'
 
     case 'detail':
       return id
         ? `/reporte/${encodeURIComponent(id)}`
-        : '/reportes';
+        : '/reportes'
 
     case 'map':
-      return '/mapa';
+      return '/mapa'
 
     case 'create':
-      return '/crear-reporte';
+      return '/crear-reporte'
 
     case 'login':
-      return '/login';
+      return '/login'
 
     case 'register':
-      return '/registro';
+      return '/registro'
 
     case 'profile':
-      return '/perfil';
+      return '/perfil'
 
     case 'admin':
-      return '/admin';
+      return '/admin'
 
     case 'admin-organismos':
-      return '/admin/organismos';
+      return '/admin/organismos'
 
     case 'maltrato':
-      return '/maltrato-animal';
+      return '/maltrato-animal'
 
     case 'chat':
       return id
         ? `/chat/${encodeURIComponent(id)}`
-        : '/';
+        : '/'
 
     default:
-      return '/';
+      return '/'
   }
 }
 
 export default function App() {
-  /*
-   * Al iniciar la aplicación leemos la URL actual.
-   *
-   * Esto permite entrar directamente a:
-   *
-   * patitastucuman.com/reportes
-   * patitastucuman.com/mapa
-   * patitastucuman.com/reporte/123
-   * patitastucuman.com/maltrato-animal
-   */
-  const initialRoute = getPageFromPath();
+  const initialRoute = getPageFromPath()
 
   const [page, setPage] = useState<Page>(
     initialRoute.page
-  );
+  )
 
   const [selectedId, setSelectedId] =
     useState<string | null>(
       initialRoute.id
-    );
+    )
 
   const [user, setUser] =
     useState<User | null>(
       () =>
         getSession()?.user ??
         null
-    );
+    )
 
-  const loggedIn = !!user;
+  /*
+   * Lo activa CreateReport cuando muestra el cartel
+   * "Para reportar un animal necesitás una cuenta".
+   */
+  const [authModalOpen, setAuthModalOpen] =
+    useState(false)
+
+  const loggedIn = !!user
 
   /*
    * Soporte para los botones atrás y adelante
@@ -254,37 +248,37 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       const route =
-        getPageFromPath();
+        getPageFromPath()
 
-      setPage(route.page);
+      setPage(route.page)
 
       setSelectedId(
         route.id
-      );
+      )
 
       setUser(
         getSession()?.user ??
           null
-      );
+      )
 
       window.scrollTo({
         top: 0,
         behavior: 'instant',
-      });
-    };
+      })
+    }
 
     window.addEventListener(
       'popstate',
       handlePopState
-    );
+    )
 
     return () => {
       window.removeEventListener(
         'popstate',
         handlePopState
-      );
-    };
-  }, []);
+      )
+    }
+  }, [])
 
   const navigate = (
     p: Page,
@@ -294,11 +288,8 @@ export default function App() {
       getPathFromPage(
         p,
         id
-      );
+      )
 
-    /*
-     * Cambiamos la URL sin recargar la página.
-     */
     if (
       window.location.pathname !==
       path
@@ -307,14 +298,14 @@ export default function App() {
         {},
         '',
         path
-      );
+      )
     }
 
-    setPage(p);
+    setPage(p)
 
     setSelectedId(
       id ?? null
-    );
+    )
 
     /*
      * Releemos la sesión por si Login o Register
@@ -323,28 +314,31 @@ export default function App() {
     setUser(
       getSession()?.user ??
         null
-    );
+    )
 
     window.scrollTo({
       top: 0,
       behavior: 'instant',
-    });
-  };
+    })
+  }
 
   const handleLogout = () => {
-    clearSession();
+    clearSession()
 
-    setUser(null);
+    setUser(null)
 
-    navigate('home');
-  };
+    navigate('home')
+  }
 
   const hideNav =
     page === 'login' ||
-    page === 'register';
+    page === 'register'
+
+  const showAuthBackground =
+    page === 'create' && authModalOpen
 
   const showDonationWidget =
-    page !== 'map';
+    page !== 'map' && !showAuthBackground
 
   return (
     <div className="min-h-full font-sans text-dark bg-cream">
@@ -359,6 +353,20 @@ export default function App() {
       <Suspense
         fallback={<PageLoader />}
       >
+        {/*
+         * Fondo del cartel de "necesitás una cuenta":
+         * la página de inicio, sin interacción.
+         * El desenfoque lo aplica el cartel.
+         */}
+        {showAuthBackground && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none select-none"
+          >
+            <Home navigate={navigate} />
+          </div>
+        )}
+
         {page === 'home' && (
           <Home
             navigate={navigate}
@@ -367,6 +375,12 @@ export default function App() {
 
         {page === 'reports' && (
           <Reports
+            navigate={navigate}
+          />
+        )}
+
+        {page === 'adoptar' && (
+          <Adoptar
             navigate={navigate}
           />
         )}
@@ -387,6 +401,9 @@ export default function App() {
         {page === 'create' && (
           <CreateReport
             navigate={navigate}
+            onAuthModalChange={
+              setAuthModalOpen
+            }
           />
         )}
 
@@ -397,9 +414,31 @@ export default function App() {
               setUser(
                 getSession()?.user ??
                   null
-              );
+              )
 
-              navigate('home');
+              /*
+               * Si el usuario llegó al login porque
+               * quería reportar un animal, después
+               * de autenticarse vuelve directamente
+               * al formulario.
+               */
+              const returnAfterAuth =
+                sessionStorage.getItem(
+                  'patitas_return_after_auth'
+                )
+
+              if (
+                returnAfterAuth === 'create'
+              ) {
+                sessionStorage.removeItem(
+                  'patitas_return_after_auth'
+                )
+
+                navigate('create')
+                return
+              }
+
+              navigate('home')
             }}
           />
         )}
@@ -457,5 +496,5 @@ export default function App() {
         <DonationWidget />
       )}
     </div>
-  );
+  )
 }

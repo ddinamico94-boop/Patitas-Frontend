@@ -1,9 +1,10 @@
 export type Page =
   | 'home'
   | 'reports'
-  | 'detail'
+  | 'adoptar'
   | 'map'
   | 'create'
+  | 'detail'
   | 'login'
   | 'register'
   | 'profile'
@@ -12,4 +13,7 @@ export type Page =
   | 'maltrato'
   | 'chat';
 
-export type NavigateFn = (page: Page, id?: string) => void;
+export type NavigateFn = (
+  page: Page,
+  id?: string
+) => void;

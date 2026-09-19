@@ -131,6 +131,8 @@ export interface ApiReport {
   breed?: string | null;
   color?: string | null;
   size?: string | null;
+  sex?: 'macho' | 'hembra' | null;
+  age?: string | null;
   contactName: string;
   phone: string;
   email: string;
@@ -174,6 +176,8 @@ function adaptReport(r: ApiReport): AnimalReport {
     breed: r.breed ?? '',
     color: r.color ?? '',
     size: r.size ?? '',
+    sex: r.sex ?? undefined,
+    age: r.age ?? undefined,
     contact: r.contactName,
     phone: r.phone,
     email: r.email,
@@ -256,6 +260,8 @@ export interface CreateReportInput {
   breed?: string;
   color?: string;
   size?: string;
+  sex?: 'macho' | 'hembra';
+age?: string;
   contactName: string;
   phone: string;
   email: string;
@@ -283,6 +289,49 @@ export async function createReport(input: CreateReportInput): Promise<AnimalRepo
   const data = await handleResponse<{ report: ApiReport }>(res);
   return adaptReport(data.report);
 }
+
+
+/**
+ * Actualiza un reporte existente.
+ *
+ * El backend se encarga de verificar que el usuario autenticado
+ * sea el dueño del reporte o un administrador.
+ */
+export async function updateReport(
+  id: string,
+  input: Partial<CreateReportInput>
+): Promise<AnimalReport> {
+  const res = await fetch(
+    `${API_URL}/api/reports/${id}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeaders(),
+      },
+      body: JSON.stringify(input),
+    }
+  );
+
+  const data = await handleResponse<{
+    report: ApiReport;
+  }>(res);
+
+  return adaptReport(data.report);
+}
+
+/**
+ * Marca una publicación que está en adopción
+ * como adoptada.
+ */
+export async function markReportAsAdopted(
+  id: string
+): Promise<AnimalReport> {
+  return updateReport(id, {
+    status: 'adoptado',
+  });
+}
+
 
 /**
  * Sube hasta 10 imágenes en una sola request y devuelve sus URLs públicas.

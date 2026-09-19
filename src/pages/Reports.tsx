@@ -106,7 +106,20 @@ export default function Reports({
 
   const reports: AnimalReport[] = data?.items ?? [];
 
-  const filtered = reports.filter((r) => {
+  /*
+   * La sección Reportes NO muestra publicaciones de adopción.
+   *
+   * - en_adopcion se muestra únicamente en /adoptar
+   * - adoptado queda guardado en la base de datos como historial,
+   *   pero no se muestra en /reportes ni en /adoptar
+   */
+  const publicReports = reports.filter(
+    (report) =>
+      report.status !== 'en_adopcion' &&
+      report.status !== 'adoptado'
+  );
+
+  const filtered = publicReports.filter((r) => {
     const matchStatus =
       activeFilter === 'todos' ||
       r.status === activeFilter;
@@ -145,6 +158,7 @@ export default function Reports({
         description="Consultá reportes de perros y gatos perdidos, encontrados, rescatados, en situación de calle o de maltrato animal en Tucumán."
         path="/reportes"
       />
+
       {/* Header */}
       <div className="bg-white border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

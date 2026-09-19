@@ -148,12 +148,30 @@ export default function MapPage({
    * cada vez que cambia algo no relacionado.
    */
   const withCoords = useMemo(() => {
-    return allReports.filter(
-      (report) =>
-        report.lat !== 0 ||
-        report.lng !== 0
+  return allReports.filter((report) => {
+    /*
+     * Los reportes de adopción no forman parte del mapa.
+     *
+     * La sección Adoptar funciona de manera independiente
+     * y solo utiliza la zona general del animal.
+     */
+    if (
+      report.status === 'en_adopcion' ||
+      report.status === 'adoptado'
+    ) {
+      return false;
+    }
+
+    /*
+     * El resto de los reportes solamente aparece
+     * si tiene coordenadas válidas.
+     */
+    return (
+      report.lat !== 0 ||
+      report.lng !== 0
     );
-  }, [allReports]);
+  });
+}, [allReports]);
 
   const visible = useMemo(() => {
     if (activeFilter === 'todos') {
