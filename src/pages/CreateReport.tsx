@@ -673,8 +673,8 @@ export default function CreateReport({
           </div>
 
           <h1 className="font-display text-2xl font-semibold text-dark mb-3">
-            Reporte publicado
-          </h1>
+  {isAdoption ? '¡Publicado en adopción!' : 'Reporte publicado'}
+</h1>
 
           <p className="text-warm-mid text-sm leading-relaxed">
             Gracias por ayudar a los animales de Tucumán.
@@ -682,13 +682,15 @@ export default function CreateReport({
           </p>
 
           <div className="mt-7 space-y-3">
-            <button
-              type="button"
-              onClick={() => navigate('reports')}
-              className="w-full py-3.5 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors"
-            >
-              Ver reportes
-            </button>
+           <button
+  type="button"
+  onClick={() =>
+    navigate(isAdoption ? 'adoptar' : 'reports')
+  }
+  className="w-full py-3.5 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors"
+>
+  {isAdoption ? 'Ver animales en adopción' : 'Ver reportes'}
+</button>
 
             <button
               type="button"
@@ -739,17 +741,33 @@ export default function CreateReport({
 
       <div className="max-w-4xl mx-auto px-5 sm:px-6 lg:px-8 pb-6">
         <div className="flex items-center gap-2">
-          {[1, 2, 3, 4, 5].map((item) => (
-            <div
-              key={item}
-              className={`h-1.5 flex-1 rounded-full transition-colors ${
-                item <= step
-                  ? 'bg-terra'
-                  : 'bg-border'
-              }`}
-            />
-          ))}
-        </div>
+  {(isAdoption ? [1, 4, 5] : [1, 2, 3, 4, 5]).map(
+    (item) => {
+      const currentPosition = isAdoption
+        ? step === 1
+          ? 0
+          : step === 4
+            ? 1
+            : 2
+        : step - 1;
+
+      const itemPosition = isAdoption
+        ? [1, 4, 5].indexOf(item)
+        : item - 1;
+
+      return (
+        <div
+          key={item}
+          className={`h-1.5 flex-1 rounded-full transition-colors ${
+            itemPosition <= currentPosition
+              ? 'bg-terra'
+              : 'bg-border'
+          }`}
+        />
+      );
+    }
+  )}
+</div>
       </div>
 
       <div className="max-w-4xl mx-auto px-5 sm:px-6 lg:px-8 pb-16">
@@ -854,17 +872,27 @@ export default function CreateReport({
 
               <div className="flex justify-end mt-8">
                 <button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  className="px-6 py-3 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors"
-                >
-                  Continuar
-                </button>
+  type="button"
+  onClick={() => {
+    if (isAdoption) {
+      setZone('Tucumán');
+      setAddress('');
+      setMapLat(undefined);
+      setMapLng(undefined);
+      setStep(4);
+    } else {
+      setStep(2);
+    }
+  }}
+  className="px-6 py-3 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors"
+>
+  Continuar
+</button>
               </div>
             </div>
           )}
 
-          {step === 2 && (
+          {step === 2 && !isAdoption && (
             <div>
               <h2 className="font-display text-2xl font-semibold text-dark mb-2">
                 {isAdoption
@@ -1047,7 +1075,7 @@ export default function CreateReport({
 
                 <button
                   type="button"
-                  onClick={() => setStep(3)}
+                  onClick={() => setStep(isAdoption ? 1 : 3)}
                   className="px-6 py-3 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors"
                 >
                   Continuar
@@ -1056,7 +1084,7 @@ export default function CreateReport({
             </div>
           )}
 
-          {step === 3 && (
+          {step === 3 && !isAdoption && (
             <div>
               <h2 className="font-display text-2xl font-semibold text-dark mb-2">
                 Ubicación y fecha
@@ -1147,7 +1175,7 @@ export default function CreateReport({
               <div className="flex justify-between mt-8">
                 <button
                   type="button"
-                  onClick={() => setStep(2)}
+                  onClick={() => setStep(isAdoption ? 1 : 2)}
                   className="px-5 py-3 text-sm text-warm-mid hover:text-dark"
                 >
                   Atrás
@@ -1174,6 +1202,117 @@ export default function CreateReport({
                 Las imágenes pueden ayudar muchísimo a
                 identificar al animal.
               </p>
+
+              {isAdoption && (
+  <div className="mb-8 space-y-5">
+    <div>
+      <label className="text-sm font-medium text-dark mb-1.5 block">
+        Nombre del animal
+      </label>
+
+      <input
+        type="text"
+        value={animalName}
+        onChange={(e) => setAnimalName(e.target.value)}
+        placeholder="Ej. Luna"
+        className="w-full px-4 py-3 border border-border rounded-xl text-sm focus:outline-none focus:border-terra"
+      />
+    </div>
+
+    <div className="grid sm:grid-cols-2 gap-5">
+      <div>
+        <label className="text-sm font-medium text-dark mb-1.5 block">
+          Sexo *
+        </label>
+
+        <select
+          value={sex}
+          onChange={(e) =>
+            setSex(e.target.value as 'macho' | 'hembra' | '')
+          }
+          className="w-full px-4 py-3 border border-border rounded-xl text-sm bg-white focus:outline-none focus:border-terra"
+        >
+          <option value="">Seleccionar</option>
+          <option value="macho">Macho</option>
+          <option value="hembra">Hembra</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-dark mb-1.5 block">
+          Edad aproximada *
+        </label>
+
+        <input
+          type="text"
+          value={age}
+          onChange={(e) => setAge(e.target.value)}
+          placeholder="Ej. 2 años"
+          className="w-full px-4 py-3 border border-border rounded-xl text-sm focus:outline-none focus:border-terra"
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-dark mb-1.5 block">
+          Tamaño
+        </label>
+
+        <select
+          value={size}
+          onChange={(e) => setSize(e.target.value)}
+          className="w-full px-4 py-3 border border-border rounded-xl text-sm bg-white focus:outline-none focus:border-terra"
+        >
+          <option value="">Seleccionar</option>
+          <option value="pequeño">Pequeño</option>
+          <option value="mediano">Mediano</option>
+          <option value="grande">Grande</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-dark mb-1.5 block">
+          Raza
+        </label>
+
+        <input
+          type="text"
+          value={breed}
+          onChange={(e) => setBreed(e.target.value)}
+          placeholder="Ej. Mestizo"
+          className="w-full px-4 py-3 border border-border rounded-xl text-sm focus:outline-none focus:border-terra"
+        />
+      </div>
+
+      <div className="sm:col-span-2">
+        <label className="text-sm font-medium text-dark mb-1.5 block">
+          Color
+        </label>
+
+        <input
+          type="text"
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
+          placeholder="Ej. Marrón y blanco"
+          className="w-full px-4 py-3 border border-border rounded-xl text-sm focus:outline-none focus:border-terra"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label className="text-sm font-medium text-dark mb-1.5 block">
+        Contanos sobre el animal
+      </label>
+
+      <textarea
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        rows={4}
+        placeholder="Ej. Es muy cariñoso, se lleva bien con otros perros y está acostumbrado a vivir en familia..."
+        className="w-full px-4 py-3 border border-border rounded-xl text-sm resize-none focus:outline-none focus:border-terra"
+      />
+    </div>
+  </div>
+)}
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                 {images.map((image, index) => (
@@ -1476,12 +1615,32 @@ export default function CreateReport({
                 </button>
 
                 <button
-                  type="button"
-                  onClick={() => setStep(5)}
-                  className="px-6 py-3 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors"
-                >
-                  Continuar
-                </button>
+  type="button"
+  onClick={() => {
+    setSubmitError(null);
+
+    if (isAdoption) {
+      if (!sex) {
+        setSubmitError(
+          'Seleccioná el sexo del animal antes de continuar.'
+        );
+        return;
+      }
+
+      if (!age.trim()) {
+        setSubmitError(
+          'Ingresá la edad aproximada del animal antes de continuar.'
+        );
+        return;
+      }
+    }
+
+    setStep(5);
+  }}
+  className="px-6 py-3 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors"
+>
+  Continuar
+</button>
               </div>
             </div>
           )}
