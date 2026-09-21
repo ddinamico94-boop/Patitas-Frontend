@@ -7,6 +7,10 @@
     {
       "source": "/compartir/reporte/:id",
       "destination": "https://patitas-backend-tjx6.onrender.com/api/reports/share/:id"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
