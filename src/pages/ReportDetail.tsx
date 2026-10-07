@@ -730,7 +730,7 @@ export default function ReportDetail({
           <div className="lg:col-span-3 space-y-6">
             {/* IMAGEN */}
 
-            <div className="h-[240px] sm:h-[360px] lg:h-[480px] rounded-2xl overflow-hidden bg-warm">
+            <div className="aspect-[16/9] lg:h-[480px] lg:aspect-auto rounded-2xl overflow-hidden bg-warm">
               {currentImage ? (
                 <img
                   src={
