@@ -732,12 +732,12 @@ export default function ReportDetail({
           <div className="lg:col-span-3 space-y-6">
             {/* IMAGEN */}
 
-            <div className="aspect-[16/9] lg:h-[480px] lg:aspect-auto rounded-2xl overflow-hidden bg-warm">
+            <div className="relative w-full h-[230px] sm:h-[340px] lg:h-[480px] rounded-2xl overflow-hidden bg-warm">
   {currentImage ? (
     <button
       type="button"
       onClick={() => setImageViewerOpen(true)}
-      className="relative w-full h-full block group cursor-zoom-in"
+      className="absolute inset-0 w-full h-full block group cursor-zoom-in"
       aria-label={`Ampliar foto de ${animal.name}`}
     >
       <img
