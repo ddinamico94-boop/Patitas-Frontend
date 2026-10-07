@@ -7,6 +7,7 @@ import {
   loginWithEmail,
   loginWithGoogle,
   saveSession,
+  getSession,
   forgotPassword,
   verifyResetCode,
   resetPassword,
@@ -32,39 +33,27 @@ export default function Login({
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
 
-  const [loginLoading, setLoginLoading] =
-    useState(false);
-
+  const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] =
     useState<string | null>(null);
 
-  const [googleLoading, setGoogleLoading] =
-    useState(false);
-
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] =
     useState<string | null>(null);
 
   const [resetStep, setResetStep] =
     useState<ResetStep>('login');
 
-  const [resetEmail, setResetEmail] =
-    useState('');
-
-  const [resetCode, setResetCode] =
-    useState('');
-
-  const [newPassword, setNewPassword] =
-    useState('');
-
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetCode, setResetCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] =
     useState('');
 
   const [showNewPassword, setShowNewPassword] =
     useState(false);
 
-  const [resetLoading, setResetLoading] =
-    useState(false);
-
+  const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] =
     useState<string | null>(null);
 
@@ -87,14 +76,32 @@ export default function Login({
     onLogin();
 
     /*
+     * Recuperamos la sesión recién guardada
+     * para comprobar el rol del usuario.
+     */
+    const session = getSession();
+
+    /*
+     * Si es ADMIN, entra automáticamente
+     * al panel de administración.
+     */
+    if (session?.user?.role === 'ADMIN') {
+      navigate('admin');
+      return;
+    }
+
+    /*
      * Si el usuario venía desde Reportar animal,
-     * vuelve directamente al formulario.
+     * vuelve al formulario.
      */
     if (returnPage === 'create') {
       navigate('create');
       return;
     }
 
+    /*
+     * Usuario normal.
+     */
     navigate('profile');
   };
 
@@ -605,7 +612,10 @@ export default function Login({
                 <button
                   type="button"
                   onClick={handleEmailLogin}
-                  disabled={loginLoading || googleLoading}
+                  disabled={
+                    loginLoading ||
+                    googleLoading
+                  }
                   className="w-full py-3.5 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loginLoading

@@ -6,6 +6,7 @@ import {
 } from 'react'
 
 import type { Page } from './types/navigation'
+
 import Navbar from './components/Navbar'
 import DonationWidget from './components/DonationWidget'
 
@@ -34,18 +35,12 @@ function PageLoader() {
     <div className="min-h-screen flex items-center justify-center bg-cream">
       <div className="text-center">
         <div className="text-4xl mb-3">🐾</div>
-
-        <p className="text-gray-500">
-          Cargando...
-        </p>
+        <p className="text-gray-500">Cargando...</p>
       </div>
     </div>
   )
 }
 
-/*
- * Convierte una URL en una página de la aplicación.
- */
 function getPageFromPath(): {
   page: Page
   id: string | null
@@ -53,24 +48,15 @@ function getPageFromPath(): {
   const path = window.location.pathname
 
   if (path === '/') {
-    return {
-      page: 'home',
-      id: null,
-    }
+    return { page: 'home', id: null }
   }
 
   if (path === '/reportes') {
-    return {
-      page: 'reports',
-      id: null,
-    }
+    return { page: 'reports', id: null }
   }
 
   if (path === '/adoptar') {
-    return {
-      page: 'adoptar',
-      id: null,
-    }
+    return { page: 'adoptar', id: null }
   }
 
   if (path.startsWith('/reporte/')) {
@@ -85,45 +71,27 @@ function getPageFromPath(): {
   }
 
   if (path === '/mapa') {
-    return {
-      page: 'map',
-      id: null,
-    }
+    return { page: 'map', id: null }
   }
 
   if (path === '/crear-reporte') {
-    return {
-      page: 'create',
-      id: null,
-    }
+    return { page: 'create', id: null }
   }
 
   if (path === '/login') {
-    return {
-      page: 'login',
-      id: null,
-    }
+    return { page: 'login', id: null }
   }
 
   if (path === '/registro') {
-    return {
-      page: 'register',
-      id: null,
-    }
+    return { page: 'register', id: null }
   }
 
   if (path === '/perfil') {
-    return {
-      page: 'profile',
-      id: null,
-    }
+    return { page: 'profile', id: null }
   }
 
   if (path === '/admin') {
-    return {
-      page: 'admin',
-      id: null,
-    }
+    return { page: 'admin', id: null }
   }
 
   if (path === '/admin/organismos') {
@@ -157,9 +125,6 @@ function getPageFromPath(): {
   }
 }
 
-/*
- * Convierte una página de la aplicación en una URL.
- */
 function getPathFromPage(
   page: Page,
   id?: string
@@ -175,9 +140,11 @@ function getPathFromPage(
       return '/adoptar'
 
     case 'detail':
-      return id
-        ? `/reporte/${encodeURIComponent(id)}`
-        : '/reportes'
+      if (id) {
+        return '/reporte/' + encodeURIComponent(id)
+      }
+
+      return '/reportes'
 
     case 'map':
       return '/mapa'
@@ -204,9 +171,11 @@ function getPathFromPage(
       return '/maltrato-animal'
 
     case 'chat':
-      return id
-        ? `/chat/${encodeURIComponent(id)}`
-        : '/'
+      if (id) {
+        return '/chat/' + encodeURIComponent(id)
+      }
+
+      return '/'
 
     default:
       return '/'
@@ -221,45 +190,79 @@ export default function App() {
   )
 
   const [selectedId, setSelectedId] =
-    useState<string | null>(
-      initialRoute.id
-    )
+    useState<string | null>(initialRoute.id)
 
   const [user, setUser] =
     useState<User | null>(
-      () =>
-        getSession()?.user ??
-        null
+      () => getSession()?.user ?? null
     )
 
-  /*
-   * Lo activa CreateReport cuando muestra el cartel
-   * "Para reportar un animal necesitás una cuenta".
-   */
   const [authModalOpen, setAuthModalOpen] =
     useState(false)
 
   const loggedIn = !!user
 
-  /*
-   * Soporte para los botones atrás y adelante
-   * del navegador.
-   */
+  const navigate = (
+    nextPage: Page,
+    id?: string
+  ) => {
+    const path = getPathFromPage(
+      nextPage,
+      id
+    )
+
+    if (
+      window.location.pathname !== path
+    ) {
+      window.history.pushState(
+        {},
+        '',
+        path
+      )
+    }
+
+    setPage(nextPage)
+    setSelectedId(id ?? null)
+    setUser(getSession()?.user ?? null)
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant',
+    })
+  }
+
+  useEffect(() => {
+    if (
+      page !== 'admin' &&
+      page !== 'admin-organismos'
+    ) {
+      return
+    }
+
+    const session = getSession()
+
+    if (!session) {
+      sessionStorage.setItem(
+        'patitas_return_after_auth',
+        page
+      )
+
+      navigate('login')
+      return
+    }
+
+    if (session.user.role !== 'ADMIN') {
+      navigate('home')
+    }
+  }, [page])
+
   useEffect(() => {
     const handlePopState = () => {
-      const route =
-        getPageFromPath()
+      const route = getPageFromPath()
 
       setPage(route.page)
-
-      setSelectedId(
-        route.id
-      )
-
-      setUser(
-        getSession()?.user ??
-          null
-      )
+      setSelectedId(route.id)
+      setUser(getSession()?.user ?? null)
 
       window.scrollTo({
         top: 0,
@@ -280,65 +283,27 @@ export default function App() {
     }
   }, [])
 
-  const navigate = (
-    p: Page,
-    id?: string
-  ) => {
-    const path =
-      getPathFromPage(
-        p,
-        id
-      )
-
-    if (
-      window.location.pathname !==
-      path
-    ) {
-      window.history.pushState(
-        {},
-        '',
-        path
-      )
-    }
-
-    setPage(p)
-
-    setSelectedId(
-      id ?? null
-    )
-
-    /*
-     * Releemos la sesión por si Login o Register
-     * acaban de guardar el usuario.
-     */
-    setUser(
-      getSession()?.user ??
-        null
-    )
-
-    window.scrollTo({
-      top: 0,
-      behavior: 'instant',
-    })
-  }
-
   const handleLogout = () => {
     clearSession()
-
     setUser(null)
-
     navigate('home')
   }
 
   const hideNav =
     page === 'login' ||
-    page === 'register'
+    page === 'register' ||
+    page === 'admin' ||
+    page === 'admin-organismos'
 
   const showAuthBackground =
-    page === 'create' && authModalOpen
+    page === 'create' &&
+    authModalOpen
 
   const showDonationWidget =
-    page !== 'map' && !showAuthBackground
+    page !== 'map' &&
+    !showAuthBackground &&
+    page !== 'admin' &&
+    page !== 'admin-organismos'
 
   return (
     <div className="min-h-full font-sans text-dark bg-cream">
@@ -350,14 +315,7 @@ export default function App() {
         />
       )}
 
-      <Suspense
-        fallback={<PageLoader />}
-      >
-        {/*
-         * Fondo del cartel de "necesitás una cuenta":
-         * la página de inicio, sin interacción.
-         * El desenfoque lo aplica el cartel.
-         */}
+      <Suspense fallback={<PageLoader />}>
         {showAuthBackground && (
           <div
             aria-hidden="true"
@@ -368,21 +326,15 @@ export default function App() {
         )}
 
         {page === 'home' && (
-          <Home
-            navigate={navigate}
-          />
+          <Home navigate={navigate} />
         )}
 
         {page === 'reports' && (
-          <Reports
-            navigate={navigate}
-          />
+          <Reports navigate={navigate} />
         )}
 
         {page === 'adoptar' && (
-          <Adoptar
-            navigate={navigate}
-          />
+          <Adoptar navigate={navigate} />
         )}
 
         {page === 'detail' && (
@@ -393,9 +345,7 @@ export default function App() {
         )}
 
         {page === 'map' && (
-          <MapPage
-            navigate={navigate}
-          />
+          <MapPage navigate={navigate} />
         )}
 
         {page === 'create' && (
@@ -411,24 +361,21 @@ export default function App() {
           <Login
             navigate={navigate}
             onLogin={() => {
-              setUser(
-                getSession()?.user ??
-                  null
-              )
+              const session = getSession()
 
-              /*
-               * Si el usuario llegó al login porque
-               * quería reportar un animal, después
-               * de autenticarse vuelve directamente
-               * al formulario.
-               */
+              const loggedUser =
+                session?.user ?? null
+
+              setUser(loggedUser)
+
               const returnAfterAuth =
                 sessionStorage.getItem(
                   'patitas_return_after_auth'
                 )
 
               if (
-                returnAfterAuth === 'create'
+                returnAfterAuth ===
+                'create'
               ) {
                 sessionStorage.removeItem(
                   'patitas_return_after_auth'
@@ -438,38 +385,73 @@ export default function App() {
                 return
               }
 
+              if (
+                returnAfterAuth ===
+                  'admin' ||
+                returnAfterAuth ===
+                  'admin-organismos'
+              ) {
+                sessionStorage.removeItem(
+                  'patitas_return_after_auth'
+                )
+
+                if (
+                  loggedUser?.role ===
+                  'ADMIN'
+                ) {
+                  if (
+                    returnAfterAuth ===
+                    'admin-organismos'
+                  ) {
+                    navigate(
+                      'admin-organismos'
+                    )
+                  } else {
+                    navigate('admin')
+                  }
+                } else {
+                  navigate('home')
+                }
+
+                return
+              }
+
+              if (
+                loggedUser?.role ===
+                'ADMIN'
+              ) {
+                navigate('admin')
+                return
+              }
+
               navigate('home')
             }}
           />
         )}
 
         {page === 'register' && (
-          <Register
-            navigate={navigate}
-          />
+          <Register navigate={navigate} />
         )}
 
         {page === 'profile' && (
           <Profile
             navigate={navigate}
             user={user}
-            onLogout={
-              handleLogout
-            }
+            onLogout={handleLogout}
           />
         )}
 
-        {page === 'admin' && (
-          <Admin
-            navigate={navigate}
-          />
-        )}
+        {page === 'admin' &&
+          user?.role === 'ADMIN' && (
+            <Admin navigate={navigate} />
+          )}
 
-        {page === 'admin-organismos' && (
-          <AdminOrganismos
-            navigate={navigate}
-          />
-        )}
+        {page === 'admin-organismos' &&
+          user?.role === 'ADMIN' && (
+            <AdminOrganismos
+              navigate={navigate}
+            />
+          )}
 
         {page === 'maltrato' && (
           <MaltratoAnimal
@@ -482,12 +464,8 @@ export default function App() {
           user && (
             <Chat
               navigate={navigate}
-              conversationId={
-                selectedId
-              }
-              currentUserId={
-                user.id
-              }
+              conversationId={selectedId}
+              currentUserId={user.id}
             />
           )}
       </Suspense>
@@ -498,3 +476,4 @@ export default function App() {
     </div>
   )
 }
+
