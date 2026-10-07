@@ -44,6 +44,8 @@ export default function ReportDetail({
   const queryClient = useQueryClient();
 
   const [imgIdx, setImgIdx] = useState(0);
+  const [imageViewerOpen, setImageViewerOpen] =
+  useState(false);
   const [showContact, setShowContact] =
     useState(false);
 
@@ -731,25 +733,49 @@ export default function ReportDetail({
             {/* IMAGEN */}
 
             <div className="aspect-[16/9] lg:h-[480px] lg:aspect-auto rounded-2xl overflow-hidden bg-warm">
-              {currentImage ? (
-                <img
-                  src={
-                    currentImage
-                  }
-                  alt={
-                    animal.name
-                  }
-                  className="w-full h-full object-cover"
-                  decoding="async"
-                  width="800"
-                  height="600"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-5xl">
-                  {emoji}
-                </div>
-              )}
-            </div>
+  {currentImage ? (
+    <button
+      type="button"
+      onClick={() => setImageViewerOpen(true)}
+      className="relative w-full h-full block group cursor-zoom-in"
+      aria-label={`Ampliar foto de ${animal.name}`}
+    >
+      <img
+        src={currentImage}
+        alt={animal.name}
+        className="w-full h-full object-cover"
+        decoding="async"
+        width="800"
+        height="600"
+      />
+
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+
+      <div className="absolute bottom-3 right-3 bg-black/65 text-white text-xs font-medium px-3 py-2 rounded-xl flex items-center gap-2 backdrop-blur-sm">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
+          <path d="M11 8v6M8 11h6" />
+        </svg>
+
+        Ampliar
+      </div>
+    </button>
+  ) : (
+    <div className="w-full h-full flex items-center justify-center text-5xl">
+      {emoji}
+    </div>
+  )}
+</div>
 
             {/* MINIATURAS */}
 
