@@ -732,7 +732,7 @@ export default function ReportDetail({
           <div className="lg:col-span-3 space-y-6">
             {/* IMAGEN */}
 
-            <div className="relative w-full h-[230px] sm:h-[340px] lg:h-[480px] rounded-2xl overflow-hidden bg-warm">
+            <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-warm">
   {currentImage ? (
     <button
       type="button"
