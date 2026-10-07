@@ -3,10 +3,20 @@ import { io, type Socket } from 'socket.io-client';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-import { statusLabel, statusColor } from '../data/mock';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+import { statusLabel } from '../data/mock';
 import type { NavigateFn } from '../types/navigation';
 import SEO from '../components/SEO';
 import { getSession } from '../lib/api';
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
 
 type QuirofanoMovil = {
   id: string;
@@ -165,7 +175,7 @@ function QuirofanoMapPicker({
 }) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
-  const markerRef = useRef<L.CircleMarker | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
 
   const defaultLat = -26.8083;
   const defaultLng = -65.2176;
@@ -245,14 +255,13 @@ function QuirofanoMapPicker({
     ];
 
     if (!markerRef.current) {
-      markerRef.current = L.circleMarker(
-        position,
-        {
-          radius: 9,
-          weight: 3,
-          fillOpacity: 0.8,
-        }
-      ).addTo(map);
+      markerRef.current = L.marker(position, {
+        icon: new L.Icon.Default(),
+      }).addTo(map);
+
+      markerRef.current.bindPopup(
+        'Ubicación del Quirófano Móvil'
+      );
     } else {
       markerRef.current.setLatLng(position);
     }
@@ -347,12 +356,6 @@ export default function Admin({
   const socketRef =
     useRef<Socket | null>(null);
 
-  /*
-   * ============================================================
-   * SOCKET.IO
-   * ============================================================
-   */
-
   useEffect(() => {
     const session = getSession();
 
@@ -394,10 +397,6 @@ export default function Admin({
       setSocketConnected(false);
     });
 
-    /*
-     * Cuando cambia un quirófano, actualizamos
-     * inmediatamente la lista.
-     */
     socket.on(
       'quirofano:created',
       (quirofano: QuirofanoMovil) => {
@@ -459,10 +458,6 @@ export default function Admin({
       }
     );
 
-    /*
-     * Cualquier actualización administrativa
-     * vuelve a consultar las estadísticas reales.
-     */
     socket.on(
       'admin:stats-updated',
       () => {
@@ -509,12 +504,6 @@ export default function Admin({
     };
   }, []);
 
-  /*
-   * ============================================================
-   * ESTADÍSTICAS
-   * ============================================================
-   */
-
   async function loadStats() {
     try {
       setStatsError('');
@@ -554,12 +543,6 @@ export default function Admin({
   useEffect(() => {
     loadStats();
   }, []);
-
-  /*
-   * ============================================================
-   * USUARIOS
-   * ============================================================
-   */
 
   async function loadUsers() {
     try {
@@ -608,12 +591,6 @@ export default function Admin({
     }
   }, [activeSection]);
 
-  /*
-   * ============================================================
-   * QUIRÓFANO
-   * ============================================================
-   */
-
   async function loadQuirofanos() {
     try {
       setLoadingQuirofanos(true);
@@ -661,12 +638,6 @@ export default function Admin({
       loadQuirofanos();
     }
   }, [activeSection]);
-
-  /*
-   * ============================================================
-   * FORMULARIO QUIRÓFANO
-   * ============================================================
-   */
 
   function resetQuirofanoForm() {
     setForm(emptyForm);
@@ -1011,12 +982,6 @@ export default function Admin({
     }
   }
 
-  /*
-   * ============================================================
-   * DASHBOARD
-   * ============================================================
-   */
-
   function renderDashboard() {
     const kpis = stats?.kpis ?? {
       total: 0,
@@ -1095,7 +1060,6 @@ export default function Admin({
           </button>
         </div>
 
-        {/* KPIs reales */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             {
@@ -1144,7 +1108,6 @@ export default function Admin({
           ))}
         </div>
 
-        {/* Usuarios */}
         <div className="bg-white rounded-2xl p-6 border border-border">
           <div className="flex items-center justify-between">
             <div>
@@ -1167,7 +1130,6 @@ export default function Admin({
           </div>
         </div>
 
-        {/* Charts */}
         <div className="grid lg:grid-cols-2 gap-4">
           <div className="bg-white rounded-2xl p-6 border border-border">
             <h3 className="font-display text-lg font-semibold text-dark mb-5">
@@ -1257,7 +1219,6 @@ export default function Admin({
           </div>
         </div>
 
-        {/* Estados */}
         <div className="bg-white rounded-2xl p-6 border border-border">
           <h3 className="font-display text-lg font-semibold text-dark mb-5">
             Estado de los reportes
@@ -1314,7 +1275,6 @@ export default function Admin({
           )}
         </div>
 
-        {/* Reportes recientes */}
         <div className="bg-white rounded-2xl p-6 border border-border">
           <div className="flex items-center justify-between mb-5">
             <div>
@@ -1347,12 +1307,6 @@ export default function Admin({
       </div>
     );
   }
-
-  /*
-   * ============================================================
-   * USUARIOS
-   * ============================================================
-   */
 
   function renderUsers() {
     return (
@@ -1484,12 +1438,6 @@ export default function Admin({
       </div>
     );
   }
-
-  /*
-   * ============================================================
-   * QUIRÓFANO
-   * ============================================================
-   */
 
   function renderQuirofano() {
     return (
@@ -2088,12 +2036,6 @@ export default function Admin({
     );
   }
 
-  /*
-   * ============================================================
-   * PLACEHOLDERS
-   * ============================================================
-   */
-
   function renderPlaceholder(
     title: string,
     description: string
@@ -2150,12 +2092,6 @@ export default function Admin({
         return renderDashboard();
     }
   }
-
-  /*
-   * ============================================================
-   * RENDER
-   * ============================================================
-   */
 
   return (
     <div
