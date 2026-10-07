@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.patitastucuman.com/sitemap.xml
+Sitemap: https://www.patitastucuman.com.ar/sitemap.xml

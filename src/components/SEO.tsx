@@ -13,7 +13,7 @@ export default function SEO({
   title,
   description,
   path = '/',
-  image = 'https://www.patitastucuman.com/og-image.png',
+  image = 'https://www.patitastucuman.com.ar/og-image.png',
   noIndex = false,
   structuredData,
 }: SEOProps) {
@@ -70,7 +70,7 @@ export default function SEO({
     };
 
     const url =
-      `https://www.patitastucuman.com${path}`;
+      `https://www.patitastucuman.com.ar${path}`;
 
     setMeta(
       'meta[name="description"]',

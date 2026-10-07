@@ -287,7 +287,7 @@ export default function ReportDetail({
       }
 
       const shareUrl =
-        `https://www.patitastucuman.com/compartir/reporte/${animal.id}`;
+        `https://www.patitastucuman.com.ar/compartir/reporte/${animal.id}`;
 
       const shareData = {
         title:
@@ -591,7 +591,7 @@ export default function ReportDetail({
         path={`/reporte/${animal.id}`}
         image={
           animal.imageUrl ||
-          'https://www.patitastucuman.com/og-image.png'
+          'https://www.patitastucuman.com.ar/og-image.png'
         }
         structuredData={{
           '@context':
@@ -624,7 +624,7 @@ export default function ReportDetail({
                   animal.imageUrl,
                 ]
               : [
-                  'https://www.patitastucuman.com/og-image.png',
+                  'https://www.patitastucuman.com.ar/og-image.png',
                 ],
 
           mainEntityOfPage:
@@ -633,11 +633,11 @@ export default function ReportDetail({
                 'WebPage',
 
               '@id':
-                `https://www.patitastucuman.com/reporte/${animal.id}`,
+                `https://www.patitastucuman.com.ar/reporte/${animal.id}`,
             },
 
           url:
-            `https://www.patitastucuman.com/reporte/${animal.id}`,
+            `https://www.patitastucuman.com.ar/reporte/${animal.id}`,
 
           author: {
             '@type':
@@ -647,7 +647,7 @@ export default function ReportDetail({
               'Patitas Tucumán',
 
             url:
-              'https://www.patitastucuman.com',
+              'https://www.patitastucuman.com.ar',
           },
 
           publisher: {
@@ -658,14 +658,14 @@ export default function ReportDetail({
               'Patitas Tucumán',
 
             url:
-              'https://www.patitastucuman.com',
+              'https://www.patitastucuman.com.ar',
 
             logo: {
               '@type':
                 'ImageObject',
 
               url:
-                'https://www.patitastucuman.com/og-image.png',
+                'https://www.patitastucuman.com.ar/og-image.png',
             },
           },
 

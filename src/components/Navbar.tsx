@@ -64,12 +64,9 @@ export default function Navbar({
   navigate,
   loggedIn,
 }: NavbarProps) {
-  const [menuOpen, setMenuOpen] =
-    useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleNavigate = (
-    targetPage: Page
-  ) => {
+  const handleNavigate = (targetPage: Page) => {
     navigate(targetPage);
     setMenuOpen(false);
   };
@@ -77,9 +74,7 @@ export default function Navbar({
   const handleHowItWorksClick = () => {
     const scrollToHowItWorks = () => {
       const section =
-        document.getElementById(
-          'como-funciona'
-        );
+        document.getElementById('como-funciona');
 
       if (section) {
         section.scrollIntoView({
@@ -102,11 +97,39 @@ export default function Navbar({
     );
   };
 
+  const handleQuirofanoClick = () => {
+    const scrollToQuirofano = () => {
+      const section =
+        document.getElementById(
+          'quirofano-movil'
+        );
+
+      if (section) {
+        section.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }
+    };
+
+    if (page === 'home') {
+      scrollToQuirofano();
+      return;
+    }
+
+    navigate('home');
+
+    window.setTimeout(
+      scrollToQuirofano,
+      50
+    );
+  };
+
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-border">
+    <nav className="sticky top-0 z-[1000] bg-white/95 backdrop-blur-md border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+
           <button
             type="button"
             onClick={() =>
@@ -132,8 +155,8 @@ export default function Navbar({
             </span>
           </button>
 
-          {/* Navegación escritorio */}
           <div className="hidden md:flex items-center gap-0.5">
+
             {navLinks.map((link) => (
               <button
                 type="button"
@@ -154,6 +177,16 @@ export default function Navbar({
             <button
               type="button"
               onClick={
+                handleQuirofanoClick
+              }
+              className="px-3 lg:px-4 py-2 rounded-lg text-sm font-medium text-warm-mid hover:text-dark hover:bg-warm transition-colors"
+            >
+              Quirófano Móvil
+            </button>
+
+            <button
+              type="button"
+              onClick={
                 handleHowItWorksClick
               }
               className="px-3 lg:px-4 py-2 rounded-lg text-sm font-medium text-warm-mid hover:text-dark hover:bg-warm transition-colors"
@@ -162,7 +195,6 @@ export default function Navbar({
             </button>
           </div>
 
-          {/* Acciones escritorio */}
           <div className="hidden md:flex items-center gap-3">
             {loggedIn ? (
               <button
@@ -198,7 +230,6 @@ export default function Navbar({
             </button>
           </div>
 
-          {/* Botón menú móvil */}
           <button
             type="button"
             onClick={() =>
@@ -242,7 +273,6 @@ export default function Navbar({
           </button>
         </div>
 
-        {/* Menú móvil */}
         {menuOpen && (
           <div
             className="md:hidden pb-4 border-t border-border mt-0"
@@ -253,6 +283,7 @@ export default function Navbar({
             }}
           >
             <div className="pt-3 space-y-0.5">
+
               {navLinks.map((link) => (
                 <button
                   type="button"
@@ -271,6 +302,17 @@ export default function Navbar({
                   {link.label}
                 </button>
               ))}
+
+              <button
+                type="button"
+                onClick={() => {
+                  handleQuirofanoClick();
+                  setMenuOpen(false);
+                }}
+                className="block w-full text-left px-4 py-3 text-sm font-medium text-dark hover:bg-warm rounded-lg transition-colors"
+              >
+                Quirófano Móvil
+              </button>
 
               <button
                 type="button"
@@ -314,9 +356,7 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={() =>
-                  handleNavigate(
-                    'create'
-                  )
+                  handleNavigate('create')
                 }
                 className="flex-1 py-2.5 bg-terra text-white rounded-xl text-sm font-semibold hover:bg-terra-dark transition-colors"
               >
