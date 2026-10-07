@@ -1510,6 +1510,117 @@ export default function ReportDetail({
         )}
       </div>
 
+      {/* ================================================= */}
+{/* VISOR DE IMÁGENES */}
+{/* ================================================= */}
+
+{imageViewerOpen && currentImage && (
+  <div
+    className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-4 sm:p-8"
+    onClick={() => setImageViewerOpen(false)}
+  >
+    {/* CERRAR */}
+    <button
+      type="button"
+      onClick={() => setImageViewerOpen(false)}
+      className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors"
+      aria-label="Cerrar imagen"
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      >
+        <path d="M18 6 6 18M6 6l12 12" />
+      </svg>
+    </button>
+
+    {/* IMAGEN COMPLETA */}
+    <div
+      className="relative w-full h-full flex items-center justify-center"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <img
+        src={currentImage}
+        alt={animal.name}
+        className="max-w-full max-h-full object-contain select-none"
+        draggable={false}
+      />
+
+      {/* FOTO ANTERIOR */}
+      {animal.images?.length > 1 && (
+        <button
+          type="button"
+          onClick={() =>
+            setImgIdx((current) =>
+              current === 0
+                ? animal.images.length - 1
+                : current - 1
+            )
+          }
+          className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center transition-colors"
+          aria-label="Foto anterior"
+        >
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+        </button>
+      )}
+
+      {/* FOTO SIGUIENTE */}
+      {animal.images?.length > 1 && (
+        <button
+          type="button"
+          onClick={() =>
+            setImgIdx((current) =>
+              current === animal.images.length - 1
+                ? 0
+                : current + 1
+            )
+          }
+          className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center transition-colors"
+          aria-label="Foto siguiente"
+        >
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </button>
+      )}
+
+      {/* CONTADOR */}
+      {animal.images?.length > 1 && (
+        <div className="absolute bottom-3 sm:bottom-5 left-1/2 -translate-x-1/2 bg-black/60 text-white text-sm px-3 py-1.5 rounded-full">
+          {imgIdx + 1} / {animal.images.length}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
+
+      
       <Footer
         navigate={
           navigate
