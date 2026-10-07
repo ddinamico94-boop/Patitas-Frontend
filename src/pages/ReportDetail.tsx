@@ -779,48 +779,31 @@ export default function ReportDetail({
 
             {/* MINIATURAS */}
 
-            {animal.images
-              ?.length >
-              1 && (
-              <div className="flex gap-2 overflow-x-auto">
-                {animal.images.map(
-                  (
-                    img,
-                    i
-                  ) => (
-                    <button
-                      type="button"
-                      key={
-                        img
-                      }
-                      onClick={() =>
-                        setImgIdx(
-                          i
-                        )
-                      }
-                      className={`w-20 h-16 rounded-xl overflow-hidden border-2 transition-colors shrink-0 ${
-                        i ===
-                        imgIdx
-                          ? 'border-terra'
-                          : 'border-transparent'
-                      }`}
-                    >
-                      <img
-                        src={
-                          img
-                        }
-                        alt=""
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                        decoding="async"
-                        width="80"
-                        height="64"
-                      />
-                    </button>
-                  )
-                )}
-              </div>
-            )}
+            {animal.images?.length > 1 && (
+  <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+    {animal.images.map((img, i) => (
+      <button
+        type="button"
+        key={img}
+        onClick={() => setImgIdx(i)}
+        className={`w-full aspect-[4/3] rounded-xl overflow-hidden border-2 transition-colors ${
+          i === imgIdx
+            ? 'border-terra'
+            : 'border-transparent'
+        }`}
+        aria-label={`Ver imagen ${i + 1}`}
+      >
+        <img
+          src={img}
+          alt=""
+          className="w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
+        />
+      </button>
+    ))}
+  </div>
+)}
 
             {/* DESCRIPCIÓN */}
 
