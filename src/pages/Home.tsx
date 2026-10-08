@@ -211,6 +211,66 @@ interface QuirofanoMovil {
   activo: boolean;
 }
 
+/*
+ * Marcador personalizado.
+ *
+ * No usa marker-icon.png ni marker-shadow.png de Leaflet.
+ * El pin se genera directamente con HTML/SVG para evitar
+ * problemas de rutas o imágenes rotas.
+ */
+const quirofanoMarkerIcon = L.divIcon({
+  className: 'quirofano-marker-container',
+  html: `
+    <div
+      style="
+        width: 48px;
+        height: 48px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        filter: drop-shadow(0 4px 5px rgba(0,0,0,0.28));
+      "
+    >
+      <div
+        style="
+          width: 42px;
+          height: 42px;
+          border-radius: 50% 50% 50% 0;
+          transform: rotate(-45deg);
+          background: #c96b4b;
+          border: 3px solid #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-sizing: border-box;
+        "
+      >
+        <svg
+          width="23"
+          height="23"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          style="transform: rotate(45deg);"
+        >
+          <rect x="3" y="6" width="18" height="12" rx="2" />
+          <path d="M7 6l2-3h6l2 3" />
+          <circle cx="8" cy="18.5" r="2" />
+          <circle cx="16" cy="18.5" r="2" />
+          <path d="M3 11h18" />
+        </svg>
+      </div>
+    </div>
+  `,
+  iconSize: [48, 48],
+  iconAnchor: [24, 48],
+  popupAnchor: [0, -48],
+});
+
 function QuirofanoPublicMap({
   lat,
   lng,
@@ -250,7 +310,14 @@ function QuirofanoPublicMap({
       }
     ).addTo(map);
 
-    const marker = L.marker([lat, lng]).addTo(map);
+    /*
+     * IMPORTANTE:
+     * Usamos el icono personalizado en lugar del marcador
+     * predeterminado de Leaflet.
+     */
+    const marker = L.marker([lat, lng], {
+      icon: quirofanoMarkerIcon,
+    }).addTo(map);
 
     marker.bindPopup(
       `<strong>Quirófano Móvil</strong><br>${direccion}`
