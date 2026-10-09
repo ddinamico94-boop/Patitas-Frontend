@@ -321,7 +321,7 @@ export default function App() {
             aria-hidden="true"
             className="pointer-events-none select-none"
           >
-            <Home navigate={navigate} />
+            <Home navigate={navigate} disableSEO/>
           </div>
         )}
 

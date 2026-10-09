@@ -357,8 +357,10 @@ function formatDate(dateString: string) {
 
 export default function Home({
   navigate,
+  disableSEO = false,
 }: {
   navigate: NavigateFn;
+  disableSEO?: boolean;
 }) {
   const [recent, setRecent] = useState<AnimalReport[]>([]);
   const [loadingRecent, setLoadingRecent] = useState(true);
@@ -511,11 +513,13 @@ export default function Home({
 
   return (
     <div className="bg-cream min-h-full">
-      <SEO
-        title="Patitas Tucumán | Animales perdidos y encontrados"
-        description="Plataforma comunitaria para reportar y encontrar animales perdidos, encontrados, rescatados o en situación de calle en Tucumán."
-        path="/"
-      />
+      {!disableSEO && (
+  <SEO
+    title="Patitas Tucumán | Animales perdidos y encontrados"
+    description="Plataforma comunitaria para reportar y encontrar animales perdidos, encontrados, rescatados o en situación de calle en Tucumán."
+    path="/"
+  />
+)}
 
       <section className="bg-cream pt-2 pb-0 overflow-hidden sm:pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
