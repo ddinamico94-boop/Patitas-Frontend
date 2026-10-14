@@ -164,6 +164,8 @@ function getAuthHeaders(): Record<string, string> {
   };
 }
 
+
+
 function QuirofanoMapPicker({
   lat,
   lng,
@@ -181,44 +183,49 @@ function QuirofanoMapPicker({
   const defaultLng = -65.2176;
 
   useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current) {
-      return;
-    }
+    const container = mapContainerRef.current;
+
+    if (!container || mapRef.current) return;
 
     const initialLat = Number(lat) || defaultLat;
     const initialLng = Number(lng) || defaultLng;
 
-    const map = L.map(mapContainerRef.current, {
+    const map = L.map(container, {
       center: [initialLat, initialLng],
       zoom: 13,
     });
 
+    mapRef.current = map;
+
     L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_4juy_1_5a22dbb70befc5ced0cba85a',
       {
-        maxZoom: 19,
+        maxZoom: 20,
         attribution:
-          '&copy; OpenStreetMap contributors',
+          '&copy; OpenStreetMap contributors &copy; CARTO',
       }
     ).addTo(map);
 
     map.on('click', (event) => {
-      const newLat = event.latlng.lat;
-      const newLng = event.latlng.lng;
-
       onChange(
-        newLat.toFixed(6),
-        newLng.toFixed(6)
+        event.latlng.lat.toFixed(6),
+        event.latlng.lng.toFixed(6)
       );
     });
 
-    mapRef.current = map;
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
 
-    setTimeout(() => {
+    resizeObserver.observe(container);
+
+    const resizeTimeout = window.setTimeout(() => {
       map.invalidateSize();
     }, 300);
 
     return () => {
+      window.clearTimeout(resizeTimeout);
+      resizeObserver.disconnect();
       map.remove();
       mapRef.current = null;
       markerRef.current = null;
@@ -234,13 +241,10 @@ function QuirofanoMapPicker({
     const currentLng = Number(lng);
 
     if (
+      !lat ||
+      !lng ||
       !Number.isFinite(currentLat) ||
-      !Number.isFinite(currentLng)
-    ) {
-      return;
-    }
-
-    if (
+      !Number.isFinite(currentLng) ||
       currentLat < -90 ||
       currentLat > 90 ||
       currentLng < -180 ||
@@ -254,22 +258,36 @@ function QuirofanoMapPicker({
       currentLng,
     ];
 
-    if (!markerRef.current) {
-      markerRef.current = L.marker(position, {
-        icon: new L.Icon.Default(),
-      }).addTo(map);
+    
+if (!markerRef.current) {
+  const blueIcon = L.divIcon({
+    className: '',
+    html: `
+      <div style="
+        width: 18px;
+        height: 18px;
+        background-color: #2563eb;
+        border: 3px solid white;
+        border-radius: 50%;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.5);
+      "></div>
+    `,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+  });
 
-      markerRef.current.bindPopup(
-        'Ubicación del Quirófano Móvil'
-      );
-    } else {
-      markerRef.current.setLatLng(position);
-    }
+  markerRef.current = L.marker(position, {
+    icon: blueIcon,
+  }).addTo(map);
 
-    map.setView(
-      position,
-      Math.max(map.getZoom(), 14)
-    );
+  markerRef.current.bindPopup('Ubicación del Quirófano Móvil');
+} else {
+  markerRef.current.setLatLng(position);
+}
+
+
+    map.setView(position, Math.max(map.getZoom(), 14));
+    map.invalidateSize();
   }, [lat, lng]);
 
   return (
@@ -277,6 +295,11 @@ function QuirofanoMapPicker({
       <div
         ref={mapContainerRef}
         className="w-full h-80 rounded-2xl overflow-hidden border border-border"
+        style={{
+          minHeight: '320px',
+          position: 'relative',
+          zIndex: 0,
+        }}
       />
 
       <p className="text-xs text-warm-mid">
@@ -292,6 +315,7 @@ function QuirofanoMapPicker({
     </div>
   );
 }
+
 
 export default function Admin({
   navigate,

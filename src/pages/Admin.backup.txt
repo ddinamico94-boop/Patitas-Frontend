@@ -1,0 +1,351 @@
+import { useEffect, useRef, useState } from 'react';
+import { io, type Socket } from 'socket.io-client';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+import { statusLabel } from '../data/mock';
+import type { NavigateFn } from '../types/navigation';
+import SEO from '../components/SEO';
+import { getSession } from '../lib/api';
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
+
+type QuirofanoMovil = {
+  id: string;
+  nombre: string;
+  direccion: string;
+  barrio: string | null;
+  lat: number;
+  lng: number;
+  fechaInicio: string;
+  fechaFin: string;
+  horario: string | null;
+  informacion: string | null;
+  activo: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type QuirofanoForm = {
+  nombre: string;
+  direccion: string;
+  barrio: string;
+  lat: string;
+  lng: string;
+  fechaInicio: string;
+  fechaFin: string;
+  horario: string;
+  informacion: string;
+  activo: boolean;
+};
+
+type AdminStats = {
+  kpis: {
+    total: number;
+    pending: number;
+    helped: number;
+    rescued: number;
+    users: number;
+  };
+  byStatus: {
+    status: string;
+    count: number;
+  }[];
+  byMonth: {
+    month: string;
+    reports: number;
+  }[];
+  byZone: {
+    zone: string;
+    count: number;
+  }[];
+};
+
+type AdminUser = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  role: string;
+  createdAt: string;
+  _count: {
+    reports: number;
+  };
+};
+
+const sidebarItems = [
+  { icon: '📊', label: 'Dashboard', id: 'dashboard' },
+  { icon: '📋', label: 'Reportes', id: 'reports' },
+  { icon: '👥', label: 'Usuarios', id: 'users' },
+  { icon: '🗺️', label: 'Mapa', id: 'map' },
+  { icon: '🚐', label: 'Quirófano Móvil', id: 'quirofano' },
+  { icon: '📈', label: 'Estadísticas', id: 'stats' },
+  { icon: '⚙️', label: 'Configuración', id: 'config' },
+];
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
+const emptyForm: QuirofanoForm = {
+  nombre: 'Quirófano Móvil',
+  direccion: '',
+  barrio: '',
+  lat: '',
+  lng: '',
+  fechaInicio: '',
+  fechaFin: '',
+  horario: '',
+  informacion: '',
+  activo: true,
+};
+
+function formatDate(date: string) {
+  if (!date) return '-';
+
+  const parsed = new Date(date);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return '-';
+  }
+
+  return new Intl.DateTimeFormat('es-AR', {
+    dateStyle: 'short',
+  }).format(parsed);
+}
+
+function formatDateTime(date: string) {
+  if (!date) return '-';
+
+  const parsed = new Date(date);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return '-';
+  }
+
+  return new Intl.DateTimeFormat('es-AR', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  }).format(parsed);
+}
+
+function getDateInputValue(date: string) {
+  if (!date) return '';
+
+  const parsed = new Date(date);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return '';
+  }
+
+  const year = parsed.getFullYear();
+  const month = String(parsed.getMonth() + 1).padStart(2, '0');
+  const day = String(parsed.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+function getAuthHeaders(): Record<string, string> {
+  const session = getSession();
+
+  if (!session?.token) {
+    return {};
+  }
+
+  return {
+    Authorization: `Bearer ${session.token}`,
+  };
+}
+
+
+
+function QuirofanoMapPicker({
+  lat,
+  lng,
+  onChange,
+}: {
+  lat: string;
+  lng: string;
+  onChange: (lat: string, lng: string) => void;
+}) {
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
+  const onChangeRef = useRef(onChange);
+
+  const defaultLat = -26.8083;
+  const defaultLng = -65.2176;
+
+  // Mantener actualizada la función que recibe las coordenadas.
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  // Inicializar el mapa una sola vez.
+  useEffect(() => {
+    const container = mapContainerRef.current;
+
+    if (!container || mapRef.current) {
+      return;
+    }
+
+    const parsedLat = Number(lat);
+    const parsedLng = Number(lng);
+
+    const hasValidCoords =
+      lat.trim() !== '' &&
+      lng.trim() !== '' &&
+      Number.isFinite(parsedLat) &&
+      Number.isFinite(parsedLng) &&
+      parsedLat >= -90 &&
+      parsedLat <= 90 &&
+      parsedLng >= -180 &&
+      parsedLng <= 180 &&
+      !(parsedLat === 0 && parsedLng === 0);
+
+    const initialLat = hasValidCoords
+      ? parsedLat
+      : defaultLat;
+
+    const initialLng = hasValidCoords
+      ? parsedLng
+      : defaultLng;
+
+    const map = L.map(container, {
+      center: [initialLat, initialLng],
+      zoom: 13,
+    });
+
+    // Capa cartográfica CARTO con datos de OpenStreetMap.
+    L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      {
+        maxZoom: 20,
+        attribution:
+          '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+      }
+    ).addTo(map);
+
+    // Seleccionar la ubicación haciendo clic en el mapa.
+    map.on('click', (event: L.LeafletMouseEvent) => {
+      const newLat = event.latlng.lat;
+      const newLng = event.latlng.lng;
+
+      onChangeRef.current(
+        newLat.toFixed(6),
+        newLng.toFixed(6)
+      );
+    });
+
+    mapRef.current = map;
+
+    // Ajustar el mapa cuando cambia el tamaño del contenedor.
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+
+    resizeObserver.observe(container);
+
+    const timeoutId = window.setTimeout(() => {
+      map.invalidateSize();
+    }, 300);
+
+    // Limpiar Leaflet cuando se desmonta el componente.
+    return () => {
+      window.clearTimeout(timeoutId);
+      resizeObserver.disconnect();
+
+      map.remove();
+
+      mapRef.current = null;
+      markerRef.current = null;
+    };
+  }, []);
+
+  // Actualizar la ubicación y el marcador.
+  useEffect(() => {
+    const map = mapRef.current;
+
+    if (!map) {
+      return;
+    }
+
+    // Evitar que los campos vacíos se conviertan en 0, 0.
+    if (!lat.trim() || !lng.trim()) {
+      if (markerRef.current) {
+        markerRef.current.remove();
+        markerRef.current = null;
+      }
+
+      return;
+    }
+
+    const currentLat = Number(lat);
+    const currentLng = Number(lng);
+
+    // Verificar que las coordenadas sean válidas.
+    if (
+      !Number.isFinite(currentLat) ||
+      !Number.isFinite(currentLng) ||
+      currentLat < -90 ||
+      currentLat > 90 ||
+      currentLng < -180 ||
+      currentLng > 180 ||
+      (currentLat === 0 && currentLng === 0)
+    ) {
+      return;
+    }
+
+    const position: L.LatLngExpression = [
+      currentLat,
+      currentLng,
+    ];
+
+    // Crear o mover el marcador.
+    if (!markerRef.current) {
+      markerRef.current = L.marker(position, {
+        icon: new L.Icon.Default(),
+      }).addTo(map);
+
+      markerRef.current.bindPopup(
+        'Ubicación del Quirófano Móvil'
+      );
+    } else {
+      markerRef.current.setLatLng(position);
+    }
+
+    // Centrar el mapa en la ubicación seleccionada.
+    map.setView(
+      position,
+      Math.max(map.getZoom(), 14)
+    );
+  }, [lat, lng]);
+
+  return (
+    <div className="space-y-2">
+      <div
+        ref={mapContainerRef}
+        className="w-full h-80 rounded-2xl overflow-hidden border border-border"
+      />
+
+      <p className="text-xs text-warm-mid">
+        Hacé clic en el mapa para seleccionar la ubicación del quirófano.
+      </p>
+
+      {lat && lng && (
+        <div className="text-xs bg-warm rounded-lg px-3 py-2 text-dark">
+          <strong>Ubicación seleccionada:</strong>{' '}
+          {lat}, {lng}
+        </div>
+      )}
+    </div>
+  );
+}
