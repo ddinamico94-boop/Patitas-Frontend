@@ -59,34 +59,9 @@ const seedOrganismos: Organismo[] = [
     active: true,
     order: 3,
   },
-  {
-    id: 'poblacion-animal',
-    name: 'Dirección de Población Animal — Municipalidad de San Miguel de Tucumán',
-    type: 'municipal',
-    email: 'poblacionanimal@smt.gob.ar',
-    address: 'Av. Francisco de Aguirre 1550, San Miguel de Tucumán',
-    active: true,
-    order: 4,
-  },
-  {
-    id: 'ciam',
-    name: 'Centro Integral Animal Municipal (CIAM)',
-    type: 'municipal',
-    address: 'Av. Francisco de Aguirre 1465–1573, San Miguel de Tucumán',
-    active: true,
-    order: 5,
-    // Sin horarios de atención: no fueron confirmados con una fuente oficial.
-  },
-  {
-    id: 'tucuman-mascotas',
-    name: 'Tucumán Mascotas',
-    type: 'provincial',
-    description: 'Programa provincial relacionado con la tenencia responsable y el cuidado de animales.',
-    // officialUrl sin cargar: completar desde el panel de administración
-    // una vez confirmado el sitio oficial correspondiente.
-    active: true,
-    order: 6,
-  },
+
+
+
 ];
 
 function readAll(): Organismo[] {
