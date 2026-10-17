@@ -71,7 +71,16 @@ function readAll(): Organismo[] {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(seedOrganismos));
       return seedOrganismos;
     }
-    return JSON.parse(raw) as Organismo[];
+    const list = JSON.parse(raw) as Organismo[];
+
+    const removedIds = new Set(["poblacion-animal", "ciam", "tucuman-mascotas"]);
+    const filtered = list.filter((organismo) => !removedIds.has(organismo.id));
+
+    if (filtered.length !== list.length) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    }
+
+    return filtered;
   } catch {
     return seedOrganismos;
   }
