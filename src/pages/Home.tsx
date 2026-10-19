@@ -338,6 +338,15 @@ function QuirofanoPublicMap({
 }
 
 function formatDate(dateString: string) {
+  if (!dateString) return "-"
+
+  // Si viene como YYYY-MM-DD, mostrarla sin convertirla de zona horaria.
+  const dateOnly = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+
+  if (dateOnly) {
+    return `${dateOnly[3]}/${dateOnly[2]}/${dateOnly[1]}`
+  }
+
   const date = new Date(dateString)
 
   if (Number.isNaN(date.getTime())) {
@@ -348,6 +357,7 @@ function formatDate(dateString: string) {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+    timeZone: "UTC",
   })
 }
 
