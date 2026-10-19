@@ -1,34 +1,26 @@
-import {
-  lazy,
-  Suspense,
-  useEffect,
-  useState,
-} from 'react'
+import { lazy, Suspense, useEffect, useState } from "react"
 
-import type { Page } from './types/navigation'
+import type { Page } from "./types/navigation"
 
-import Navbar from './components/Navbar'
-import DonationWidget from './components/DonationWidget'
+import Navbar from "./components/Navbar"
+import DonationWidget from "./components/DonationWidget"
 
-import {
-  getSession,
-  clearSession,
-  type User,
-} from './lib/api'
+import { getSession, clearSession, type User } from "./lib/api"
 
-const Home = lazy(() => import('./pages/Home'))
-const Reports = lazy(() => import('./pages/Reports'))
-const Adoptar = lazy(() => import('./pages/Adoptar'))
-const ReportDetail = lazy(() => import('./pages/ReportDetail'))
-const MapPage = lazy(() => import('./pages/MapPage'))
-const CreateReport = lazy(() => import('./pages/CreateReport'))
-const Login = lazy(() => import('./pages/Login'))
-const Register = lazy(() => import('./pages/Register'))
-const Profile = lazy(() => import('./pages/Profile'))
-const Admin = lazy(() => import('./pages/Admin'))
-const Chat = lazy(() => import('./pages/Chat'))
-const MaltratoAnimal = lazy(() => import('./pages/MaltratoAnimal'))
-const AdminOrganismos = lazy(() => import('./pages/AdminOrganismos'))
+const Home = lazy(() => import("./pages/Home"))
+const Reports = lazy(() => import("./pages/Reports"))
+const Adoptar = lazy(() => import("./pages/Adoptar"))
+const ReportDetail = lazy(() => import("./pages/ReportDetail"))
+const MapPage = lazy(() => import("./pages/MapPage"))
+const CreateReport = lazy(() => import("./pages/CreateReport"))
+const Login = lazy(() => import("./pages/Login"))
+const Register = lazy(() => import("./pages/Register"))
+const Profile = lazy(() => import("./pages/Profile"))
+const Admin = lazy(() => import("./pages/Admin"))
+const Chat = lazy(() => import("./pages/Chat"))
+const MaltratoAnimal = lazy(() => import("./pages/MaltratoAnimal"))
+const AdminOrganismos = lazy(() => import("./pages/AdminOrganismos"))
+const EditReport = lazy(() => import("./pages/EditReport"))
 
 function PageLoader() {
   return (
@@ -47,178 +39,165 @@ function getPageFromPath(): {
 } {
   const path = window.location.pathname
 
-  if (path === '/') {
-    return { page: 'home', id: null }
+  if (path === "/") {
+    return { page: "home", id: null }
   }
 
-  if (path === '/reportes') {
-    return { page: 'reports', id: null }
+  if (path === "/reportes") {
+    return { page: "reports", id: null }
   }
 
-  if (path === '/adoptar') {
-    return { page: 'adoptar', id: null }
+  if (path === "/adoptar") {
+    return { page: "adoptar", id: null }
   }
 
-  if (path.startsWith('/reporte/')) {
-    const id = decodeURIComponent(
-      path.replace('/reporte/', '')
-    )
+  if (path.startsWith("/reporte/")) {
+    const id = decodeURIComponent(path.replace("/reporte/", ""))
 
     return {
-      page: 'detail',
+      page: "detail",
       id: id || null,
     }
   }
 
-  if (path === '/mapa') {
-    return { page: 'map', id: null }
+  if (path === "/mapa") {
+    return { page: "map", id: null }
   }
 
-  if (path === '/crear-reporte') {
-    return { page: 'create', id: null }
+  if (path === "/crear-reporte") {
+    return { page: "create", id: null }
   }
+  if (path.startsWith("/editar-reporte/")) {
+    const id = decodeURIComponent(path.replace("/editar-reporte/", ""))
 
-  if (path === '/login') {
-    return { page: 'login', id: null }
-  }
-
-  if (path === '/registro') {
-    return { page: 'register', id: null }
-  }
-
-  if (path === '/perfil') {
-    return { page: 'profile', id: null }
-  }
-
-  if (path === '/admin') {
-    return { page: 'admin', id: null }
-  }
-
-  if (path === '/admin/organismos') {
     return {
-      page: 'admin-organismos',
+      page: "edit-report",
+      id: id || null,
+    }
+  }
+
+  if (path === "/login") {
+    return { page: "login", id: null }
+  }
+
+  if (path === "/registro") {
+    return { page: "register", id: null }
+  }
+
+  if (path === "/perfil") {
+    return { page: "profile", id: null }
+  }
+
+  if (path === "/admin") {
+    return { page: "admin", id: null }
+  }
+
+  if (path === "/admin/organismos") {
+    return {
+      page: "admin-organismos",
       id: null,
     }
   }
 
-  if (path === '/maltrato-animal') {
+  if (path === "/maltrato-animal") {
     return {
-      page: 'maltrato',
+      page: "maltrato",
       id: null,
     }
   }
 
-  if (path.startsWith('/chat/')) {
-    const id = decodeURIComponent(
-      path.replace('/chat/', '')
-    )
+  if (path.startsWith("/chat/")) {
+    const id = decodeURIComponent(path.replace("/chat/", ""))
 
     return {
-      page: 'chat',
+      page: "chat",
       id: id || null,
     }
   }
 
   return {
-    page: 'home',
+    page: "home",
     id: null,
   }
 }
 
-function getPathFromPage(
-  page: Page,
-  id?: string
-): string {
+function getPathFromPage(page: Page, id?: string): string {
   switch (page) {
-    case 'home':
-      return '/'
+    case "home":
+      return "/"
 
-    case 'reports':
-      return '/reportes'
+    case "reports":
+      return "/reportes"
 
-    case 'adoptar':
-      return '/adoptar'
+    case "adoptar":
+      return "/adoptar"
 
-    case 'detail':
+    case "detail":
       if (id) {
-        return '/reporte/' + encodeURIComponent(id)
+        return "/reporte/" + encodeURIComponent(id)
       }
 
-      return '/reportes'
+      return "/reportes"
 
-    case 'map':
-      return '/mapa'
+    case "map":
+      return "/mapa"
 
-    case 'create':
-      return '/crear-reporte'
+    case "create":
+      return "/crear-reporte"
 
-    case 'login':
-      return '/login'
+    case "edit-report":
+      return id ? "/editar-reporte/" + encodeURIComponent(id) : "/perfil"
 
-    case 'register':
-      return '/registro'
+    case "login":
+      return "/login"
 
-    case 'profile':
-      return '/perfil'
+    case "register":
+      return "/registro"
 
-    case 'admin':
-      return '/admin'
+    case "profile":
+      return "/perfil"
 
-    case 'admin-organismos':
-      return '/admin/organismos'
+    case "admin":
+      return "/admin"
 
-    case 'maltrato':
-      return '/maltrato-animal'
+    case "admin-organismos":
+      return "/admin/organismos"
 
-    case 'chat':
+    case "maltrato":
+      return "/maltrato-animal"
+
+    case "chat":
       if (id) {
-        return '/chat/' + encodeURIComponent(id)
+        return "/chat/" + encodeURIComponent(id)
       }
 
-      return '/'
+      return "/"
 
     default:
-      return '/'
+      return "/"
   }
 }
 
 export default function App() {
   const initialRoute = getPageFromPath()
 
-  const [page, setPage] = useState<Page>(
-    initialRoute.page
+  const [page, setPage] = useState<Page>(initialRoute.page)
+
+  const [selectedId, setSelectedId] = useState<string | null>(initialRoute.id)
+
+  const [user, setUser] = useState<User | null>(
+    () => getSession()?.user ?? null,
   )
 
-  const [selectedId, setSelectedId] =
-    useState<string | null>(initialRoute.id)
-
-  const [user, setUser] =
-    useState<User | null>(
-      () => getSession()?.user ?? null
-    )
-
-  const [authModalOpen, setAuthModalOpen] =
-    useState(false)
+  const [authModalOpen, setAuthModalOpen] = useState(false)
 
   const loggedIn = !!user
 
-  const navigate = (
-    nextPage: Page,
-    id?: string
-  ) => {
-    const path = getPathFromPage(
-      nextPage,
-      id
-    )
+  const navigate = (nextPage: Page, id?: string) => {
+    const path = getPathFromPage(nextPage, id)
 
-    if (
-      window.location.pathname !== path
-    ) {
-      window.history.pushState(
-        {},
-        '',
-        path
-      )
+    if (window.location.pathname !== path) {
+      window.history.pushState({}, "", path)
     }
 
     setPage(nextPage)
@@ -227,32 +206,26 @@ export default function App() {
 
     window.scrollTo({
       top: 0,
-      behavior: 'instant',
+      behavior: "instant",
     })
   }
 
   useEffect(() => {
-    if (
-      page !== 'admin' &&
-      page !== 'admin-organismos'
-    ) {
+    if (page !== "admin" && page !== "admin-organismos") {
       return
     }
 
     const session = getSession()
 
     if (!session) {
-      sessionStorage.setItem(
-        'patitas_return_after_auth',
-        page
-      )
+      sessionStorage.setItem("patitas_return_after_auth", page)
 
-      navigate('login')
+      navigate("login")
       return
     }
 
-    if (session.user.role !== 'ADMIN') {
-      navigate('home')
+    if (session.user.role !== "ADMIN") {
+      navigate("home")
     }
   }, [page])
 
@@ -266,214 +239,149 @@ export default function App() {
 
       window.scrollTo({
         top: 0,
-        behavior: 'instant',
+        behavior: "instant",
       })
     }
 
-    window.addEventListener(
-      'popstate',
-      handlePopState
-    )
+    window.addEventListener("popstate", handlePopState)
 
     return () => {
-      window.removeEventListener(
-        'popstate',
-        handlePopState
-      )
+      window.removeEventListener("popstate", handlePopState)
     }
   }, [])
 
   const handleLogout = () => {
     clearSession()
     setUser(null)
-    navigate('home')
+    navigate("home")
   }
 
   const hideNav =
-    page === 'login' ||
-    page === 'register' ||
-    page === 'admin' ||
-    page === 'admin-organismos'
+    page === "login" ||
+    page === "register" ||
+    page === "admin" ||
+    page === "admin-organismos"
 
-  const showAuthBackground =
-    page === 'create' &&
-    authModalOpen
+  const showAuthBackground = page === "create" && authModalOpen
 
   const showDonationWidget =
-    page !== 'map' &&
+    page !== "map" &&
     !showAuthBackground &&
-    page !== 'admin' &&
-    page !== 'admin-organismos'
+    page !== "admin" &&
+    page !== "admin-organismos"
 
   return (
     <div className="min-h-full font-sans text-dark bg-cream">
       {!hideNav && (
-        <Navbar
-          page={page}
-          navigate={navigate}
-          loggedIn={loggedIn}
-        />
+        <Navbar page={page} navigate={navigate} loggedIn={loggedIn} />
       )}
 
       <Suspense fallback={<PageLoader />}>
         {showAuthBackground && (
-          <div
-            aria-hidden="true"
-            className="pointer-events-none select-none"
-          >
-            <Home navigate={navigate} disableSEO/>
+          <div aria-hidden="true" className="pointer-events-none select-none">
+            <Home navigate={navigate} disableSEO />
           </div>
         )}
 
-        {page === 'home' && (
-          <Home navigate={navigate} />
+        {page === "home" && <Home navigate={navigate} />}
+
+        {page === "reports" && <Reports navigate={navigate} />}
+
+        {page === "adoptar" && <Adoptar navigate={navigate} />}
+
+        {page === "detail" && (
+          <ReportDetail id={selectedId} navigate={navigate} />
         )}
 
-        {page === 'reports' && (
-          <Reports navigate={navigate} />
-        )}
+        {page === "map" && <MapPage navigate={navigate} />}
 
-        {page === 'adoptar' && (
-          <Adoptar navigate={navigate} />
-        )}
-
-        {page === 'detail' && (
-          <ReportDetail
-            id={selectedId}
-            navigate={navigate}
-          />
-        )}
-
-        {page === 'map' && (
-          <MapPage navigate={navigate} />
-        )}
-
-        {page === 'create' && (
+        {page === "create" && (
           <CreateReport
             navigate={navigate}
-            onAuthModalChange={
-              setAuthModalOpen
-            }
+            onAuthModalChange={setAuthModalOpen}
           />
         )}
 
-        {page === 'login' && (
+        {page === "edit-report" && selectedId && (
+          <EditReport id={selectedId} navigate={navigate} />
+        )}
+
+        {page === "login" && (
           <Login
             navigate={navigate}
             onLogin={() => {
               const session = getSession()
 
-              const loggedUser =
-                session?.user ?? null
+              const loggedUser = session?.user ?? null
 
               setUser(loggedUser)
 
-              const returnAfterAuth =
-                sessionStorage.getItem(
-                  'patitas_return_after_auth'
-                )
+              const returnAfterAuth = sessionStorage.getItem(
+                "patitas_return_after_auth",
+              )
 
-              if (
-                returnAfterAuth ===
-                'create'
-              ) {
-                sessionStorage.removeItem(
-                  'patitas_return_after_auth'
-                )
+              if (returnAfterAuth === "create") {
+                sessionStorage.removeItem("patitas_return_after_auth")
 
-                navigate('create')
+                navigate("create")
                 return
               }
 
               if (
-                returnAfterAuth ===
-                  'admin' ||
-                returnAfterAuth ===
-                  'admin-organismos'
+                returnAfterAuth === "admin" ||
+                returnAfterAuth === "admin-organismos"
               ) {
-                sessionStorage.removeItem(
-                  'patitas_return_after_auth'
-                )
+                sessionStorage.removeItem("patitas_return_after_auth")
 
-                if (
-                  loggedUser?.role ===
-                  'ADMIN'
-                ) {
-                  if (
-                    returnAfterAuth ===
-                    'admin-organismos'
-                  ) {
-                    navigate(
-                      'admin-organismos'
-                    )
+                if (loggedUser?.role === "ADMIN") {
+                  if (returnAfterAuth === "admin-organismos") {
+                    navigate("admin-organismos")
                   } else {
-                    navigate('admin')
+                    navigate("admin")
                   }
                 } else {
-                  navigate('home')
+                  navigate("home")
                 }
 
                 return
               }
 
-              if (
-                loggedUser?.role ===
-                'ADMIN'
-              ) {
-                navigate('admin')
+              if (loggedUser?.role === "ADMIN") {
+                navigate("admin")
                 return
               }
 
-              navigate('home')
+              navigate("home")
             }}
           />
         )}
 
-        {page === 'register' && (
-          <Register navigate={navigate} />
+        {page === "register" && <Register navigate={navigate} />}
+
+        {page === "profile" && (
+          <Profile navigate={navigate} user={user} onLogout={handleLogout} />
         )}
 
-        {page === 'profile' && (
-          <Profile
+        {page === "admin" && user?.role === "ADMIN" && (
+          <Admin navigate={navigate} />
+        )}
+
+        {page === "admin-organismos" && user?.role === "ADMIN" && (
+          <AdminOrganismos navigate={navigate} />
+        )}
+
+        {page === "maltrato" && <MaltratoAnimal navigate={navigate} />}
+
+        {page === "chat" && selectedId && user && (
+          <Chat
             navigate={navigate}
-            user={user}
-            onLogout={handleLogout}
+            conversationId={selectedId}
+            currentUserId={user.id}
           />
         )}
-
-        {page === 'admin' &&
-          user?.role === 'ADMIN' && (
-            <Admin navigate={navigate} />
-          )}
-
-        {page === 'admin-organismos' &&
-          user?.role === 'ADMIN' && (
-            <AdminOrganismos
-              navigate={navigate}
-            />
-          )}
-
-        {page === 'maltrato' && (
-          <MaltratoAnimal
-            navigate={navigate}
-          />
-        )}
-
-        {page === 'chat' &&
-          selectedId &&
-          user && (
-            <Chat
-              navigate={navigate}
-              conversationId={selectedId}
-              currentUserId={user.id}
-            />
-          )}
       </Suspense>
 
-      {showDonationWidget && (
-        <DonationWidget />
-      )}
+      {showDonationWidget && <DonationWidget />}
     </div>
   )
 }
-

@@ -1,35 +1,50 @@
-import { useEffect, useRef, useState } from 'react';
-import type { NavigateFn } from '../types/navigation';
-import { listReports, AnimalReport } from '../lib/api';
-import AnimalCard from '../components/AnimalCard';
-import Footer from '../components/Footer';
-import orejitasLogo from '../assets/logo-orejitas-callejeras.jpg';
-import icon from '../imagenes/favicon.svg';
-import SEO from '../components/SEO';
+import { useEffect, useRef, useState } from "react"
+import type { NavigateFn } from "../types/navigation"
+import { listReports, AnimalReport } from "../lib/api"
+import AnimalCard from "../components/AnimalCard"
+import Footer from "../components/Footer"
+import orejitasLogo from "../assets/logo-orejitas-callejeras.jpg"
+import icon from "../imagenes/favicon.svg"
+import SEO from "../components/SEO"
 
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import L from "leaflet"
+import "leaflet/dist/leaflet.css"
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000"
 
 const steps = [
   {
-    n: '01',
-    title: 'Reportá',
-    desc: 'Completá el formulario con la información del animal: fotos, zona, descripción y tus datos de contacto.',
+    n: "01",
+    title: "Reportá",
+    desc: "Completá el formulario con la información del animal: fotos, zona, descripción y tus datos de contacto.",
     icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+      <svg
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      >
         <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
       </svg>
     ),
   },
   {
-    n: '02',
-    title: 'La comunidad ayuda',
-    desc: 'Cientos de vecinos en Tucumán ven el reporte, comparten y aportan información sobre el animal.',
+    n: "02",
+    title: "La comunidad ayuda",
+    desc: "Cientos de vecinos en Tucumán ven el reporte, comparten y aportan información sobre el animal.",
     icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+      <svg
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      >
         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
         <circle cx="9" cy="7" r="4" />
         <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
@@ -37,37 +52,40 @@ const steps = [
     ),
   },
   {
-    n: '03',
-    title: 'Encontramos una solución',
-    desc: 'El animal regresa a casa, es adoptado o recibe la atención veterinaria que necesita.',
+    n: "03",
+    title: "Encontramos una solución",
+    desc: "El animal regresa a casa, es adoptado o recibe la atención veterinaria que necesita.",
     icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+      <svg
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      >
         <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
         <polyline points="9 22 9 12 15 12 15 22" />
       </svg>
     ),
   },
-];
+]
 
-const INSTAGRAM_URL =
-  'https://www.instagram.com/orejitascallejeras_/';
+const INSTAGRAM_URL = "https://www.instagram.com/orejitascallejeras_/"
 
-const PROJECT_NAME = 'Orejitas Callejeras';
+const PROJECT_NAME = "Orejitas Callejeras"
 
-const PROJECT_IMAGE = orejitasLogo;
+const PROJECT_IMAGE = orejitasLogo
 
 const PROJECT_DESCRIPTION = [
-  'Detrás de cada animal en la calle hay una historia, una mirada que pide ayuda y una vida que merece una oportunidad.',
-  'Orejitas Callejeras trabaja para rescatar, cuidar y dar visibilidad a animales que se encuentran en situación de calle, acompañándolos en el camino hacia una vida mejor y un hogar responsable.',
-  'Desde Patitas Tucumán nos unimos a esta misión para amplificar sus historias, facilitar la difusión de los casos y conectar a quienes necesitan ayuda con quienes están dispuestos a brindarla.',
-  'Porque cuando nos unimos, una pequeña ayuda puede cambiar una vida.',
-];
+  "Detrás de cada animal en la calle hay una historia, una mirada que pide ayuda y una vida que merece una oportunidad.",
+  "Orejitas Callejeras trabaja para rescatar, cuidar y dar visibilidad a animales que se encuentran en situación de calle, acompañándolos en el camino hacia una vida mejor y un hogar responsable.",
+  "Desde Patitas Tucumán nos unimos a esta misión para amplificar sus historias, facilitar la difusión de los casos y conectar a quienes necesitan ayuda con quienes están dispuestos a brindarla.",
+  "Porque cuando nos unimos, una pequeña ayuda puede cambiar una vida.",
+]
 
-function InstagramIcon({
-  className,
-}: {
-  className?: string;
-}) {
+function InstagramIcon({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -82,14 +100,10 @@ function InstagramIcon({
       <circle cx="12" cy="12" r="4" />
       <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none" />
     </svg>
-  );
+  )
 }
 
-function LocationIcon({
-  className = 'w-5 h-5',
-}: {
-  className?: string;
-}) {
+function LocationIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -103,14 +117,10 @@ function LocationIcon({
       <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1116 0z" />
       <circle cx="12" cy="10" r="2.5" />
     </svg>
-  );
+  )
 }
 
-function ClockIcon({
-  className = 'w-5 h-5',
-}: {
-  className?: string;
-}) {
+function ClockIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -124,14 +134,10 @@ function ClockIcon({
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7v5l3 2" />
     </svg>
-  );
+  )
 }
 
-function CalendarIcon({
-  className = 'w-5 h-5',
-}: {
-  className?: string;
-}) {
+function CalendarIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -145,14 +151,10 @@ function CalendarIcon({
       <rect x="3" y="4" width="18" height="17" rx="2" />
       <path d="M16 2v4M8 2v4M3 10h18" />
     </svg>
-  );
+  )
 }
 
-function InfoIcon({
-  className = 'w-5 h-5',
-}: {
-  className?: string;
-}) {
+function InfoIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -166,14 +168,10 @@ function InfoIcon({
       <circle cx="12" cy="12" r="9" />
       <path d="M12 10v6M12 7h.01" />
     </svg>
-  );
+  )
 }
 
-function NavigationIcon({
-  className = 'w-4 h-4',
-}: {
-  className?: string;
-}) {
+function NavigationIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <svg
       className={className}
@@ -187,28 +185,28 @@ function NavigationIcon({
       <path d="M21 3L10 14" />
       <path d="M21 3l-7 18-4-7-7-4z" />
     </svg>
-  );
+  )
 }
 
 interface HomeStats {
-  total: number;
-  perdidos: number;
-  encontrados: number;
-  ayudados: number;
+  total: number
+  perdidos: number
+  encontrados: number
+  ayudados: number
 }
 
 interface QuirofanoMovil {
-  id: string;
-  nombre: string;
-  direccion: string;
-  barrio?: string | null;
-  lat: number;
-  lng: number;
-  fechaInicio: string;
-  fechaFin: string;
-  horario?: string | null;
-  informacion?: string | null;
-  activo: boolean;
+  id: string
+  nombre: string
+  direccion: string
+  barrio?: string | null
+  lat: number
+  lng: number
+  fechaInicio: string
+  fechaFin: string
+  horario?: string | null
+  informacion?: string | null
+  activo: boolean
 }
 
 /*
@@ -219,7 +217,7 @@ interface QuirofanoMovil {
  * problemas de rutas o imágenes rotas.
  */
 const quirofanoMarkerIcon = L.divIcon({
-  className: 'quirofano-marker-container',
+  className: "quirofano-marker-container",
   html: `
     <div
       style="
@@ -269,28 +267,28 @@ const quirofanoMarkerIcon = L.divIcon({
   iconSize: [48, 48],
   iconAnchor: [24, 48],
   popupAnchor: [0, -48],
-});
+})
 
 function QuirofanoPublicMap({
   lat,
   lng,
   direccion,
 }: {
-  lat: number;
-  lng: number;
-  direccion: string;
+  lat: number
+  lng: number
+  direccion: string
 }) {
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<L.Map | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null)
+  const mapRef = useRef<L.Map | null>(null)
 
   useEffect(() => {
     if (!mapContainerRef.current) {
-      return;
+      return
     }
 
     if (mapRef.current) {
-      mapRef.current.remove();
-      mapRef.current = null;
+      mapRef.current.remove()
+      mapRef.current = null
     }
 
     const map = L.map(mapContainerRef.current, {
@@ -298,20 +296,17 @@ function QuirofanoPublicMap({
       zoom: 16,
       zoomControl: true,
       scrollWheelZoom: false,
-    });
+    })
 
-    mapRef.current = map;
+    mapRef.current = map
 
-   
     L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      "https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_4juy_2_b55c41171b2b14bc4fa4e1a5",
       {
-        attribution:
-          '&copy; OpenStreetMap contributors &copy; CARTO',
-        subdomains: 'abcd',
         maxZoom: 20,
-      }
-    ).addTo(map);
+        attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
+      },
+    ).addTo(map)
 
     /*
      * IMPORTANTE:
@@ -320,249 +315,220 @@ function QuirofanoPublicMap({
      */
     const marker = L.marker([lat, lng], {
       icon: quirofanoMarkerIcon,
-    }).addTo(map);
+    }).addTo(map)
 
-    marker.bindPopup(
-      `<strong>Quirófano Móvil</strong><br>${direccion}`
-    );
+    marker.bindPopup(`<strong>Quirófano Móvil</strong><br>${direccion}`)
 
     setTimeout(() => {
-      map.invalidateSize();
-    }, 100);
+      map.invalidateSize()
+    }, 100)
 
     return () => {
-      map.remove();
-      mapRef.current = null;
-    };
-  }, [lat, lng, direccion]);
+      map.remove()
+      mapRef.current = null
+    }
+  }, [lat, lng, direccion])
 
   return (
     <div
       ref={mapContainerRef}
       className="w-full h-full min-h-[320px] relative z-0"
     />
-  );
+  )
 }
 
 function formatDate(dateString: string) {
-  const date = new Date(dateString);
+  const date = new Date(dateString)
 
   if (Number.isNaN(date.getTime())) {
-    return dateString;
+    return dateString
   }
 
-  return date.toLocaleDateString('es-AR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+  return date.toLocaleDateString("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })
 }
 
 export default function Home({
   navigate,
   disableSEO = false,
 }: {
-  navigate: NavigateFn;
-  disableSEO?: boolean;
+  navigate: NavigateFn
+  disableSEO?: boolean
 }) {
-  const [recent, setRecent] = useState<AnimalReport[]>([]);
-  const [loadingRecent, setLoadingRecent] = useState(true);
+  const [recent, setRecent] = useState<AnimalReport[]>([])
+  const [loadingRecent, setLoadingRecent] = useState(true)
 
-  const [stats, setStats] = useState<HomeStats | null>(null);
+  const [stats, setStats] = useState<HomeStats | null>(null)
 
-  const [
-    showProjectDescription,
-    setShowProjectDescription,
-  ] = useState(false);
+  const [showProjectDescription, setShowProjectDescription] = useState(false)
 
-  const [quirofano, setQuirofano] =
-    useState<QuirofanoMovil[]>([]);
+  const [quirofano, setQuirofano] = useState<QuirofanoMovil[]>([])
 
-  const [loadingQuirofano, setLoadingQuirofano] =
-    useState(true);
+  const [loadingQuirofano, setLoadingQuirofano] = useState(true)
 
   useEffect(() => {
-    let active = true;
+    let active = true
 
     listReports({ pageSize: 4 })
       .then((data) => {
         if (active) {
-          setRecent(data.items);
+          setRecent(data.items)
         }
       })
       .catch(() => {})
       .finally(() => {
         if (active) {
-          setLoadingRecent(false);
+          setLoadingRecent(false)
         }
-      });
+      })
 
     Promise.all([
       listReports({ pageSize: 1 }),
       listReports({
         pageSize: 1,
-        status: 'perdido',
+        status: "perdido",
       }),
       listReports({
         pageSize: 1,
-        status: 'encontrado',
+        status: "encontrado",
       }),
       listReports({
         pageSize: 1,
-        status: 'ayudado',
+        status: "ayudado",
       }),
       listReports({
         pageSize: 1,
-        status: 'rescatado',
+        status: "rescatado",
       }),
     ])
-      .then(
-        ([
-          all,
-          perdidos,
-          encontrados,
-          ayudados,
-          rescatados,
-        ]) => {
-          if (!active) return;
+      .then(([all, perdidos, encontrados, ayudados, rescatados]) => {
+        if (!active) return
 
-          setStats({
-            total: all.total,
-            perdidos: perdidos.total,
-            encontrados: encontrados.total,
-            ayudados:
-              ayudados.total +
-              rescatados.total,
-          });
-        }
-      )
+        setStats({
+          total: all.total,
+          perdidos: perdidos.total,
+          encontrados: encontrados.total,
+          ayudados: ayudados.total + rescatados.total,
+        })
+      })
       .catch(() => {
         if (active) {
-          setStats(null);
+          setStats(null)
         }
-      });
+      })
 
     return () => {
-      active = false;
-    };
-  }, []);
+      active = false
+    }
+  }, [])
 
   useEffect(() => {
-    let active = true;
+    let active = true
 
     async function loadQuirofano() {
       try {
-        setLoadingQuirofano(true);
+        setLoadingQuirofano(true)
 
-        const response = await fetch(
-          `${API_BASE_URL}/api/quirofano`
-        );
+        const response = await fetch(`${API_BASE_URL}/api/quirofano`)
 
         if (!response.ok) {
-          throw new Error(
-            'No se pudo consultar el quirófano móvil.'
-          );
+          throw new Error("No se pudo consultar el quirófano móvil.")
         }
 
-        const data = await response.json();
+        const data = await response.json()
 
-        if (!active) return;
+        if (!active) return
 
         const items = Array.isArray(data)
           ? data
           : Array.isArray(data?.items)
             ? data.items
-            : [];
+            : []
 
-        setQuirofano(items);
+        setQuirofano(items)
       } catch (error) {
-        console.error(error);
+        console.error(error)
 
         if (active) {
-          setQuirofano([]);
+          setQuirofano([])
         }
       } finally {
         if (active) {
-          setLoadingQuirofano(false);
+          setLoadingQuirofano(false)
         }
       }
     }
 
-    loadQuirofano();
+    loadQuirofano()
 
     return () => {
-      active = false;
-    };
-  }, []);
+      active = false
+    }
+  }, [])
 
   const statTiles = [
     {
       value: stats?.total,
-      label: 'Animales reportados',
+      label: "Animales reportados",
     },
     {
       value: stats?.perdidos,
-      label: 'Perdidos',
+      label: "Perdidos",
     },
     {
       value: stats?.encontrados,
-      label: 'Encontrados',
+      label: "Encontrados",
     },
     {
       value: stats?.ayudados,
-      label: 'Ayudados o rescatados',
+      label: "Ayudados o rescatados",
     },
-  ];
+  ]
 
   return (
     <div className="bg-cream min-h-full">
       {!disableSEO && (
-  <SEO
-    title="Patitas Tucumán | Animales perdidos y encontrados"
-    description="Plataforma comunitaria para reportar y encontrar animales perdidos, encontrados, rescatados o en situación de calle en Tucumán."
-    path="/"
-  />
-)}
+        <SEO
+          title="Patitas Tucumán | Animales perdidos y encontrados"
+          description="Plataforma comunitaria para reportar y encontrar animales perdidos, encontrados, rescatados o en situación de calle en Tucumán."
+          path="/"
+        />
+      )}
 
       <section className="bg-cream pt-2 pb-0 overflow-hidden sm:pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div className="py-8 lg:py-16">
               <div className="inline-flex items-center gap-2 text-terra text-sm font-medium mb-6 px-3.5 py-1.5 bg-terra/10 rounded-full">
-                <img
-                  src={icon}
-                  alt="Patitas Tucumán"
-                  className="w-6 h-6"
-                />
+                <img src={icon} alt="Patitas Tucumán" className="w-6 h-6" />
                 Comunidad de Tucumán
               </div>
 
               <h1 className="font-display text-5xl lg:text-6xl xl:text-7xl font-semibold text-dark leading-[1.05] mb-6">
                 Ayudemos a que
                 <br />
-                <span className="text-terra">
-                  vuelvan a casa
-                </span>
+                <span className="text-terra">vuelvan a casa</span>
               </h1>
 
               <p className="text-lg text-warm-mid leading-relaxed mb-8 max-w-lg">
-                Reportá animales perdidos,
-                encontrados o en situación de
-                calle. Entre todos podemos
-                ayudarlos a encontrar un hogar y
+                Reportá animales perdidos, encontrados o en situación de calle.
+                Entre todos podemos ayudarlos a encontrar un hogar y
                 reencontrarse con sus familias.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
-                  onClick={() => navigate('create')}
+                  onClick={() => navigate("create")}
                   className="px-7 py-3.5 bg-terra text-white font-semibold rounded-xl hover:bg-terra-dark transition-colors text-base"
                 >
                   Reportar un animal
                 </button>
 
                 <button
-                  onClick={() => navigate('reports')}
+                  onClick={() => navigate("reports")}
                   className="px-7 py-3.5 border-2 border-border text-dark font-semibold rounded-xl hover:border-terra hover:text-terra transition-colors text-base"
                 >
                   Ver reportes
@@ -586,7 +552,7 @@ export default function Home({
                   </p>
 
                   <p className="font-display text-2xl font-bold text-dark">
-                    {stats?.total ?? '—'}
+                    {stats?.total ?? "—"}
                   </p>
                 </div>
 
@@ -596,7 +562,7 @@ export default function Home({
                   </p>
 
                   <p className="font-display text-2xl font-bold">
-                    {stats?.ayudados ?? '—'}
+                    {stats?.ayudados ?? "—"}
                   </p>
                 </div>
               </div>
@@ -614,22 +580,17 @@ export default function Home({
                 className="bg-white rounded-2xl p-6 border border-border text-center"
               >
                 <div className="font-display text-3xl font-semibold text-dark mb-1">
-                  {s.value ?? '—'}
+                  {s.value ?? "—"}
                 </div>
 
-                <div className="text-sm text-warm-mid">
-                  {s.label}
-                </div>
+                <div className="text-sm text-warm-mid">{s.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section
-        id="como-funciona"
-        className="py-16 bg-warm scroll-mt-24"
-      >
+      <section id="como-funciona" className="py-16 bg-warm scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="font-display text-4xl font-semibold text-dark mb-4">
@@ -637,18 +598,14 @@ export default function Home({
             </h2>
 
             <p className="text-warm-mid text-lg max-w-xl mx-auto">
-              Un proceso simple para que más
-              animales reciban la ayuda que
+              Un proceso simple para que más animales reciban la ayuda que
               necesitan.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {steps.map((step) => (
-              <div
-                key={step.n}
-                className="relative"
-              >
+              <div key={step.n} className="relative">
                 <div className="bg-white rounded-2xl p-8 border border-border h-full">
                   <div className="w-14 h-14 rounded-2xl bg-terra/10 text-terra flex items-center justify-center mb-6">
                     {step.icon}
@@ -678,17 +635,14 @@ export default function Home({
               </div>
 
               <p className="text-warm-mid leading-relaxed mb-3">
-                Hay muchas formas de ayudar.
-                También podés conocer y acompañar
-                a quienes trabajan día a día por
-                los animales de Tucumán.
+                Hay muchas formas de ayudar. También podés conocer y acompañar a
+                quienes trabajan día a día por los animales de Tucumán.
               </p>
 
               <p className="text-warm-mid leading-relaxed">
-                Patitas Tucumán trabaja junto a
-                proyectos y personas que comparten
-                el compromiso de ayudar y proteger
-                a los animales de nuestra provincia.
+                Patitas Tucumán trabaja junto a proyectos y personas que
+                comparten el compromiso de ayudar y proteger a los animales de
+                nuestra provincia.
               </p>
             </div>
 
@@ -718,17 +672,13 @@ export default function Home({
                     <div
                       className={`text-sm text-warm-mid leading-relaxed space-y-3 ${
                         !showProjectDescription
-                          ? 'max-h-[4.8rem] overflow-hidden relative'
-                          : ''
+                          ? "max-h-[4.8rem] overflow-hidden relative"
+                          : ""
                       }`}
                     >
-                      {PROJECT_DESCRIPTION.map(
-                        (paragraph, index) => (
-                          <p key={index}>
-                            {paragraph}
-                          </p>
-                        )
-                      )}
+                      {PROJECT_DESCRIPTION.map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
 
                       {!showProjectDescription && (
                         <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white to-transparent pointer-events-none" />
@@ -738,15 +688,13 @@ export default function Home({
                     <button
                       type="button"
                       onClick={() =>
-                        setShowProjectDescription(
-                          (previous) => !previous
-                        )
+                        setShowProjectDescription((previous) => !previous)
                       }
                       className="mt-3 text-terra font-semibold text-sm hover:underline inline-flex items-center gap-1"
                     >
                       {showProjectDescription
-                        ? 'Ocultar descripción'
-                        : 'Leer descripción'}
+                        ? "Ocultar descripción"
+                        : "Leer descripción"}
 
                       <svg
                         width="15"
@@ -758,9 +706,7 @@ export default function Home({
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         className={`transition-transform duration-200 ${
-                          showProjectDescription
-                            ? 'rotate-180'
-                            : ''
+                          showProjectDescription ? "rotate-180" : ""
                         }`}
                       >
                         <path d="M6 9l6 6 6-6" />
@@ -795,10 +741,8 @@ export default function Home({
             </h2>
 
             <p className="text-warm-mid text-lg max-w-2xl mx-auto">
-              Consultá dónde se encuentra el
-              quirófano móvil y conocé las fechas,
-              horarios y condiciones para las
-              castraciones gratuitas.
+              Consultá dónde se encuentra el quirófano móvil y conocé las
+              fechas, horarios y condiciones para las castraciones gratuitas.
             </p>
           </div>
 
@@ -819,9 +763,8 @@ export default function Home({
               </h3>
 
               <p className="text-warm-mid max-w-xl mx-auto">
-                En este momento no hay una ubicación
-                de quirófano móvil publicada.
-                Volvé a consultar próximamente.
+                En este momento no hay una ubicación de quirófano móvil
+                publicada. Volvé a consultar próximamente.
               </p>
             </div>
           ) : (
@@ -847,7 +790,7 @@ export default function Home({
                       </div>
 
                       <h3 className="font-display text-3xl font-semibold text-dark mb-6">
-                        {item.nombre || 'Quirófano Móvil'}
+                        {item.nombre || "Quirófano Móvil"}
                       </h3>
 
                       <div className="space-y-5">
@@ -964,11 +907,10 @@ export default function Home({
             </div>
 
             <button
-              onClick={() => navigate('reports')}
+              onClick={() => navigate("reports")}
               className="hidden sm:flex items-center gap-1.5 text-terra font-semibold text-sm hover:underline"
             >
               Ver todos
-
               <svg
                 width="16"
                 height="16"
@@ -1005,7 +947,7 @@ export default function Home({
 
           <div className="mt-8 text-center sm:hidden">
             <button
-              onClick={() => navigate('reports')}
+              onClick={() => navigate("reports")}
               className="px-6 py-3 border-2 border-border rounded-xl text-sm font-semibold text-dark hover:border-terra hover:text-terra transition-colors"
             >
               Ver todos los reportes
@@ -1043,21 +985,20 @@ export default function Home({
               </h2>
 
               <p className="text-white/80 text-lg mb-8 max-w-xl mx-auto">
-                Tu reporte puede ser el comienzo
-                de una historia con final feliz.
-                Solo lleva unos minutos.
+                Tu reporte puede ser el comienzo de una historia con final
+                feliz. Solo lleva unos minutos.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button
-                  onClick={() => navigate('create')}
+                  onClick={() => navigate("create")}
                   className="px-8 py-3.5 bg-white text-terra font-semibold rounded-xl hover:bg-cream transition-colors text-base"
                 >
                   Reportar un animal
                 </button>
 
                 <button
-                  onClick={() => navigate('map')}
+                  onClick={() => navigate("map")}
                   className="px-8 py-3.5 border-2 border-white/40 text-white font-semibold rounded-xl hover:bg-white/10 transition-colors text-base"
                 >
                   Ver el mapa
@@ -1070,5 +1011,5 @@ export default function Home({
 
       <Footer navigate={navigate} />
     </div>
-  );
+  )
 }
