@@ -492,10 +492,6 @@ export default function Home({
       value: stats?.encontrados,
       label: "Encontrados",
     },
-    {
-      value: stats?.ayudados,
-      label: "Ayudados o rescatados",
-    },
   ]
 
   return (
@@ -565,16 +561,6 @@ export default function Home({
                     {stats?.total ?? "—"}
                   </p>
                 </div>
-
-                <div className="bg-terra text-white rounded-2xl px-4 py-3 shadow-lg">
-                  <p className="text-xs text-white/80 font-medium mb-0.5">
-                    Ayudados o rescatados
-                  </p>
-
-                  <p className="font-display text-2xl font-bold">
-                    {stats?.ayudados ?? "—"}
-                  </p>
-                </div>
               </div>
             </div>
           </div>
@@ -583,13 +569,13 @@ export default function Home({
 
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 sm:grid-cols-3">
             {statTiles.map((s) => (
               <div
                 key={s.label}
-                className="bg-white rounded-2xl p-6 border border-border text-center"
+                className="rounded-2xl border border-border bg-white p-6 text-center"
               >
-                <div className="font-display text-3xl font-semibold text-dark mb-1">
+                <div className="mb-1 font-display text-3xl font-semibold text-dark">
                   {s.value ?? "—"}
                 </div>
 
